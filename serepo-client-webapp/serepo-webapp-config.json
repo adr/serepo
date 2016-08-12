@@ -1,0 +1,4 @@
+{
+  "solrUrl" : "http://localhost:8983/solr/serepo",
+  "serepoUrl" : "http://localhost:8080/serepo"
+}

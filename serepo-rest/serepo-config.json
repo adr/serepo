@@ -1,0 +1,6 @@
+{
+    "repositoriesDir": "/Users/andreas/Documents/serepo-workingdir/repositories",
+    "repositoriesTempWorkingDir": "/Users/andreas/Documents/serepo-workingdir/clone-temps",
+    "globalRelationDefinitionFile": "/Users/andreas/Documents/serepo-workingdir/relations.yml",
+    "solrUrl": "http://localhost:8983/solr/serepo"
+}

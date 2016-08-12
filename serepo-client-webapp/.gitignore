@@ -1,0 +1,7 @@
+.settings/
+.classpath
+.project
+/target/
+rebel.xml
+styles.css
+styles.scss.cache
