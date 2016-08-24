@@ -8,7 +8,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,7 +24,6 @@ import ch.hsr.isf.serepo.data.restinterface.common.Link;
 import ch.hsr.isf.serepo.data.restinterface.common.User;
 import ch.hsr.isf.serepo.data.restinterface.metadata.MetadataContainer;
 import ch.hsr.isf.serepo.data.restinterface.metadata.MetadataEntry;
-import ch.hsr.isf.serepo.data.restinterface.seitem.Relation;
 import ch.hsr.isf.serepo.data.restinterface.seitem.RelationContainer;
 import ch.hsr.isf.serepo.data.restinterface.seitem.RelationEntry;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
@@ -346,6 +347,11 @@ public class SeItems {
         relationEntry.setAuthor(new User(log.getAuthor().getName(), log.getAuthor().getEmail()));
         relationEntry.setUpdated(log.getWhen());
         
+        // map relation identifier to relation
+        Map<String, RelationDefinition> mapRelDef = new HashMap<>();
+        for (RelationDefinition relDef : relationsFile.getDefinitions()) {
+          mapRelDef.put(relDef.getIdentifier(), relDef);
+        }
         for (SectionLink sectionLink : sectionLinks) {
           String target = null;
           try {
@@ -353,8 +359,8 @@ public class SeItems {
           } catch (URISyntaxException e) {
             target = sectionLink.getUrl();
           }
-          relationEntry.getLinks().add(new Link(sectionLink.getSection(), target));
-          relationEntry.getRelations().add(new Relation(sectionLink.getSection(), target));
+          RelationDefinition relDef = mapRelDef.get(sectionLink.getSection());
+          relationEntry.getLinks().add(new Link(relDef.getIdentifier(), relDef.getUri(), target));
         }
   
         return Response.ok(relationContainer).build();

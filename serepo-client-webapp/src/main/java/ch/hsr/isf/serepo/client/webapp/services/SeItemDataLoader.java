@@ -16,8 +16,8 @@ import javax.ws.rs.core.Response.Status;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
+import ch.hsr.isf.serepo.data.restinterface.common.Link;
 import ch.hsr.isf.serepo.data.restinterface.metadata.MetadataContainer;
-import ch.hsr.isf.serepo.data.restinterface.seitem.Relation;
 import ch.hsr.isf.serepo.data.restinterface.seitem.RelationContainer;
 
 public class SeItemDataLoader {
@@ -25,7 +25,7 @@ public class SeItemDataLoader {
 	private SeItemDataLoader() {
 	}
 	
-	public static List<Relation> loadRelations(String seItemUrl) {
+	public static List<Link> loadRelations(String seItemUrl) {
 		String uri = String.format("%s?relations", seItemUrl);
         Client client = ClientBuilder.newClient();
         WebTarget target = client.target(uri);
@@ -34,7 +34,7 @@ public class SeItemDataLoader {
           response = target.request().accept(MediaType.APPLICATION_JSON_TYPE).get();
           if (response.getStatus() == Status.OK.getStatusCode()) {
             RelationContainer relationContainer = response.readEntity(new GenericType<RelationContainer>(RelationContainer.class));
-            return relationContainer.getEntry().getRelations();
+            return relationContainer.getEntry().getLinks();
           } else {
           	Notification.show(String.format("Error while loading metadata for SE-Item."), response.getStatusInfo().getReasonPhrase(), Type.ERROR_MESSAGE);
           }

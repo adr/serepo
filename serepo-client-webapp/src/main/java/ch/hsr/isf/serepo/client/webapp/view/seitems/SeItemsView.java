@@ -18,6 +18,7 @@ import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.MetadataContainer
 import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.RelationsContainer;
 import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.seitem.SeItemTreeContainer;
 import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.seitem.SeItemTreeItem;
+import ch.hsr.isf.serepo.data.restinterface.common.Link;
 import ch.hsr.isf.serepo.data.restinterface.seitem.Relation;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
 
@@ -82,7 +83,7 @@ public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
   }
 
   @Override
-  public void setSeItemRelations(String seItemName, List<Relation> relations) {
+  public void setSeItemRelations(String seItemName, List<Link> relations) {
     relationsContainer.setCaption(String.format("Relations for SE-Item '%s'", seItemName));
     relationsContainer.setRelations(relations);
   }

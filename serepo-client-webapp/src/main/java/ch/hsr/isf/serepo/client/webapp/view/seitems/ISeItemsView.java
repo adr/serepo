@@ -4,7 +4,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import ch.hsr.isf.serepo.data.restinterface.seitem.Relation;
+import ch.hsr.isf.serepo.data.restinterface.common.Link;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
 
 public interface ISeItemsView {
@@ -15,6 +15,6 @@ public interface ISeItemsView {
 	
 	void setSeItemMetadata(String seItemName, Map<String, Object> metadata);
 
-	void setSeItemRelations(String seItemName, List<Relation> relations);
+	void setSeItemRelations(String seItemName, List<Link> relations);
 	
 }

@@ -4,13 +4,16 @@ public class RelationDefinition {
 
 	private String identifier;
 	
+	private String uri;
+	
 	private String description;
 	
 	public RelationDefinition() {
 	}
 
-	public RelationDefinition(String identifier, String description) {
+	public RelationDefinition(String identifier, String uri, String description) {
 		this.identifier = identifier;
+		this.uri = uri;
 		this.description = description;
 	}
 
@@ -22,7 +25,15 @@ public class RelationDefinition {
 		this.identifier = identifier;
 	}
 
-	public String getDescription() {
+	public String getUri() {
+	   return uri;
+	}
+
+	public void setUri(String uri) {
+	     this.uri = uri;
+	}
+
+  public String getDescription() {
 		return description;
 	}
 

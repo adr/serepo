@@ -34,10 +34,7 @@ public class RelationEntry {
   private Date updated;
 
   @AtomLink
-  @JsonIgnore
   private List<Link> links = new ArrayList<>();
-  
-  private List<Relation> relations = new ArrayList<>();
   
   @AtomSummary
   @JsonIgnore
@@ -76,14 +73,6 @@ public class RelationEntry {
 
   public void setLinks(List<Link> links) {
     this.links = links;
-  }
-
-  public List<Relation> getRelations() {
-    return relations;
-  }
-
-  public void setRelations(List<Relation> relations) {
-    this.relations = relations;
   }
 
 }

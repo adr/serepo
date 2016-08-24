@@ -17,7 +17,7 @@ import com.vaadin.ui.Notification.Type;
 
 import ch.hsr.isf.serepo.client.webapp.model.Settings;
 import ch.hsr.isf.serepo.client.webapp.services.SeItemDataLoader;
-import ch.hsr.isf.serepo.data.restinterface.seitem.Relation;
+import ch.hsr.isf.serepo.data.restinterface.common.Link;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItemContainer;
 
@@ -76,7 +76,7 @@ public class SeItemsPresenter {
                                                .toString());
   }
 
-  private List<Relation> getRelations(SeItem seItem) {
+  private List<Link> getRelations(SeItem seItem) {
     return SeItemDataLoader.loadRelations(seItem.getId()
                                                 .toString());
   }
