@@ -69,7 +69,8 @@ public class Commits {
     commit.getLinks()
           .add(new Link("self", id.toString()));
     commit.getLinks()
-          .add(new Link("show_seitems", id.toString()));
+          .add(new Link("show_seitems", Uri.of(id, "seitems")
+                                           .toString()));
 
     return commit;
 

@@ -81,7 +81,7 @@ public class Repositories {
     final Repository repository = new Repository();
     repository.setName(repositoryDir.getName()
                                     .replace(".git", ""));
-    URI id = Uri.of(baseUri, "repos", repository.getName());
+    URI id = Uri.of(baseUri, repository.getName());
     repository.setId(id);
 
     try (GitRepository git = GitRepositoryBuilder.open(repositoryDir)) {
