@@ -10,7 +10,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import ch.hsr.isf.serepo.data.restinterface.metadata.MetadataContainer;
-import ch.hsr.isf.serepo.data.restinterface.seitem.RelationContainer;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItemContainer;
 import ch.hsr.isf.serepo.git.error.GitCommandException;
 import ch.hsr.isf.serepo.relations.RelationsFile;
@@ -59,12 +58,12 @@ public class SeItemsResource extends Resource {
   @ApiOperation(value = "Get a metadata/relations of a SE-Item.", notes = "Use this call to get metadata or relations of one specific SE-Item.", nickname = "getSeItemMetadataRelations")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Returns metadata about the SE-Item", response = MetadataContainer.class)
-      , @ApiResponse(code = 200, message = "Returns relations of the SE-Item", response = RelationContainer.class)
+//      , @ApiResponse(code = 200, message = "Returns relations of the SE-Item", response = RelationContainer.class) // swagger does currently not support multiple response types with the same code
       , @ApiResponse(code = 404, message = "If the given SE-Item, repository or commitId does not exist.")
   })
   @GET
   @Path("/{seitem:.*}")
-  public Response get(@PathParam(RepositoryResource.PARAM_REPOSITORY) String repositoryName,
+  public Response getData(@PathParam(RepositoryResource.PARAM_REPOSITORY) String repositoryName,
       @PathParam(CommitsResource.PARAM_COMMIT_ID) String commitId,
       @PathParam("seitem") String seitem, @QueryParam("metadata") String queryMetadata,
       @QueryParam("relations") String queryRelations)
