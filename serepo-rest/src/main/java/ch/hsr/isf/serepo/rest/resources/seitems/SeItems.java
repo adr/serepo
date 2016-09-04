@@ -41,6 +41,7 @@ import ch.hsr.isf.serepo.markdown.yamlfrontmatter.Metadata.InputType;
 import ch.hsr.isf.serepo.relations.RelationDefinition;
 import ch.hsr.isf.serepo.relations.RelationsFile;
 import ch.hsr.isf.serepo.relations.RelationsFileReader;
+import ch.hsr.isf.serepo.rest.resources.Resource;
 
 public class SeItems {
 
@@ -118,9 +119,9 @@ public class SeItems {
             content.setUrl(id.toString());
             
             seItem.getLinks().add(new Link("self", id.toString()));
-            seItem.getLinks().add(new Link("serepo_content", id.toString()));
-            seItem.getLinks().add(new Link("serepo_metadata", id.toString()+"?metadata"));
-            seItem.getLinks().add(new Link("serepo_relations", id.toString()+"?relations"));
+            seItem.getLinks().add(new Link(Resource.HATEOAS_PREFIX + "serepo_content", id.toString()));
+            seItem.getLinks().add(new Link(Resource.HATEOAS_PREFIX + "serepo_metadata", id.toString()+"?metadata"));
+            seItem.getLinks().add(new Link(Resource.HATEOAS_PREFIX + "serepo_relations", id.toString()+"?relations"));
             
           } catch (GitCommandException | URISyntaxException | IOException e) {
             throw new RuntimeException(e);
@@ -271,8 +272,8 @@ public class SeItems {
         metadataEntry.setUpdated(log.getWhen());
         metadataEntry.setMap(metadataTransfer[0]);
         metadataEntry.getLinks().add(new Link("self", id.toString()));
-        metadataEntry.getLinks().add(new Link("serepo_content", baseUri.toString()));
-        metadataEntry.getLinks().add(new Link("serepo_relations", new URI(null, null, baseUri.toString(), "relations", null).toString()));
+        metadataEntry.getLinks().add(new Link(Resource.HATEOAS_PREFIX + "serepo_content", baseUri.toString()));
+        metadataEntry.getLinks().add(new Link(Resource.HATEOAS_PREFIX + "serepo_relations", new URI(null, null, baseUri.toString(), "relations", null).toString()));
         
         return Response.ok(metadataContainer).build();
         

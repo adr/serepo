@@ -17,6 +17,8 @@ import ch.hsr.isf.serepo.rest.SeRepoRestApplication;
 @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_ATOM_XML})
 public abstract class Resource {
 
+  public static final String HATEOAS_PREFIX = "https://www.ifs.hsr.ch/serepo/api/rels/";
+  
   @Context
   private UriInfo uriInfo;
   @Context

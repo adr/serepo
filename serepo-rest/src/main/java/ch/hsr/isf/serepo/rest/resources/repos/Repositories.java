@@ -31,6 +31,7 @@ import ch.hsr.isf.serepo.git.repository.GitRepository.FileReader;
 import ch.hsr.isf.serepo.git.repository.GitRepositoryBuilder;
 import ch.hsr.isf.serepo.git.repository.file.GitFile;
 import ch.hsr.isf.serepo.git.repository.log.GitCommitLog;
+import ch.hsr.isf.serepo.rest.resources.Resource;
 
 public class Repositories {
 
@@ -68,7 +69,7 @@ public class Repositories {
                        .add(new Link("self", Uri.of(baseUri, "repos")
                                                 .toString()));
     repositoryContainer.getLinks()
-                       .add(new Link("create", Uri.of(baseUri, "repos")
+                       .add(new Link(Resource.HATEOAS_PREFIX + "create_repository", Uri.of(baseUri, "repos")
                                                   .toString()));
 
     return repositoryContainer;
@@ -118,9 +119,9 @@ public class Repositories {
     repository.getLinks()
               .add(new Link("self", id.toString()));
     repository.getLinks()
-              .add(new Link("delete", id.toString()));
+              .add(new Link(Resource.HATEOAS_PREFIX + "delete_repository", id.toString()));
     repository.getLinks()
-              .add(new Link("serepo_commits", Uri.of(id, "commits")
+              .add(new Link(Resource.HATEOAS_PREFIX + "serepo_commits", Uri.of(id, "commits")
                                                .toString()));
 
     return repository;

@@ -16,6 +16,7 @@ import ch.hsr.isf.serepo.git.error.GitCommandException;
 import ch.hsr.isf.serepo.git.repository.GitRepository;
 import ch.hsr.isf.serepo.git.repository.GitRepositoryBuilder;
 import ch.hsr.isf.serepo.git.repository.log.GitCommitLog;
+import ch.hsr.isf.serepo.rest.resources.Resource;
 
 public class Commits {
 
@@ -30,7 +31,7 @@ public class Commits {
     commitContainer.getLinks()
                    .add(new Link("self", baseUri.toString()));
     commitContainer.getLinks()
-                   .add(new Link("create", baseUri.toString()));
+                   .add(new Link(Resource.HATEOAS_PREFIX + "create_commit", baseUri.toString()));
 
     File repositoryDir = Paths.get(repositoriesDir.getAbsolutePath(), repositoryName + ".git")
                               .toFile();
@@ -69,7 +70,7 @@ public class Commits {
     commit.getLinks()
           .add(new Link("self", id.toString()));
     commit.getLinks()
-          .add(new Link("show_seitems", Uri.of(id, "seitems")
+          .add(new Link(Resource.HATEOAS_PREFIX + "show_seitems", Uri.of(id, "seitems")
                                            .toString()));
 
     return commit;
