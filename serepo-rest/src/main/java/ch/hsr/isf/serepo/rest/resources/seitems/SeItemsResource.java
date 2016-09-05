@@ -63,7 +63,7 @@ public class SeItemsResource extends Resource {
   })
   @GET
   @Path("/{seitem:.*}")
-  public Response getData(@PathParam(RepositoryResource.PARAM_REPOSITORY) String repositoryName,
+  public Response get(@PathParam(RepositoryResource.PARAM_REPOSITORY) String repositoryName,
       @PathParam(CommitsResource.PARAM_COMMIT_ID) String commitId,
       @PathParam("seitem") String seitem, @QueryParam("metadata") String queryMetadata,
       @QueryParam("relations") String queryRelations)
