@@ -10,6 +10,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -80,6 +81,7 @@ public class CommitsResource extends Resource {
   })
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces(MediaType.TEXT_PLAIN)
   public Response post(@PathParam(RepositoryResource.PARAM_REPOSITORY) String repositoryName,
       MultipartFormDataInput multipart)
       throws IOException, GitCommandException, URISyntaxException {
