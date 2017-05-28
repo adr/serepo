@@ -7,8 +7,14 @@ import java.net.URL;
 
 import javax.ws.rs.core.MediaType;
 
+import org.pegdown.Extensions;
+import org.pegdown.PegDownProcessor;
+import org.pegdown.plugins.PegDownPlugins;
+
+import com.google.common.io.ByteStreams;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FileDownloader;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -27,6 +33,7 @@ public class ContentContainer extends CustomComponent {
 	private final Panel panel;
 	private static final MediaType IMAGE_TYPE = MediaType.valueOf("image/*");
 	private static final MediaType PDF_TYPE = MediaType.valueOf("application/pdf");
+	private static final MediaType MARKDOWN_TYPE = MediaType.valueOf("text/markdown");
 
 	public ContentContainer() {
 		setSizeFull();
@@ -62,6 +69,9 @@ public class ContentContainer extends CustomComponent {
 				BrowserFrame browserFrame = new BrowserFrame(null, new ExternalResource(src));
 				browserFrame.setSizeFull();
 				content = browserFrame;
+            } else if (MARKDOWN_TYPE.isCompatible(mediaType)) {
+              String mdHtml = markdownToHtml(urlConnection);
+              content = new Label(mdHtml, ContentMode.HTML);
 			} else if (MediaType.TEXT_PLAIN_TYPE.isCompatible(mediaType)) {
 				content = new Label((String) urlConnection.getContent());
 			} else if (IMAGE_TYPE.isCompatible(mediaType)) {
@@ -93,6 +103,14 @@ public class ContentContainer extends CustomComponent {
 		panel.setContent(content);
 		
 	}
+
+  private String markdownToHtml(HttpURLConnection urlConnection) throws IOException {
+    PegDownPlugins plugins = new PegDownPlugins.Builder().build();
+    PegDownProcessor pegDownProcessor = new PegDownProcessor(Extensions.ALL, plugins);
+    byte[] markdown = ByteStreams.toByteArray(urlConnection.getInputStream());
+    String mdHtml = pegDownProcessor.markdownToHtml(new String(markdown));
+    return mdHtml;
+  }
 	
 	private MediaType getMediaType(String contentType) {
 		MediaType mediaType = null;
