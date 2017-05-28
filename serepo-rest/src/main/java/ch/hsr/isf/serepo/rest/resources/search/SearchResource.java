@@ -72,7 +72,7 @@ public class SearchResource extends Resource {
     }
     if (in != null) {
       filterQueries.add(
-          FilterQueries.create(SearchConfig.Fields.SEITEM_DOCUMENTTYPE, emptyToWildcard(in)));
+          FilterQueries.create(SearchConfig.Fields.SEITEM_DOCUMENTTYPE, emptyToWildcard(in.toUpperCase())));
     }
 
     if (q == null) {
