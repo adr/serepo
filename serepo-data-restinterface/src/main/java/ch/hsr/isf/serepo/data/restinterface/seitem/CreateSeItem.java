@@ -9,54 +9,56 @@ import java.util.TreeMap;
 
 public class CreateSeItem {
 
-	private String name;
-	
-	private String folder;
-	
-	private Map<String, Object> metadata = new TreeMap<>();
+  private String name;
 
-	private List<Relation> relations = new ArrayList<>();
-	
-	public CreateSeItem() {
-	}
+  private String folder;
 
-	public String getName() {
-		return name;
-	}
+  private Map<String, Object> metadata = new TreeMap<>();
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  private List<Relation> relations = new ArrayList<>();
 
-	public String getFolder() {
-		return folder;
-	}
+  public CreateSeItem() {}
 
-	public void setFolder(String folder) {
-		this.folder = folder;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public Map<String, Object> getMetadata() {
-		return metadata;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	@SuppressWarnings("unchecked")
-	public void setMetadata(TreeMap<String, Object> metadata) {
-		// TODO find a better/cleaner way
-		for (Entry<String, Object> entry : metadata.entrySet()) {
-			if (HashMap.class.isAssignableFrom(entry.getValue().getClass())) {
-				metadata.put(entry.getKey(), new TreeMap<String, Object>((Map<String, Object>) entry.getValue()));
-			}
-		}
-		this.metadata = metadata;
-	}
+  public String getFolder() {
+    return folder;
+  }
 
-	public List<Relation> getRelations() {
-		return relations;
-	}
+  public void setFolder(String folder) {
+    this.folder = folder;
+  }
 
-	public void setRelations(List<Relation> relations) {
-		this.relations = relations;
-	}
+  public Map<String, Object> getMetadata() {
+    return metadata;
+  }
+
+  @SuppressWarnings("unchecked")
+  public void setMetadata(TreeMap<String, Object> metadata) {
+    // TODO find a better/cleaner way
+    for (Entry<String, Object> entry : metadata.entrySet()) {
+      if (entry.getValue() == null) {
+        continue;
+      }
+      if (HashMap.class.isAssignableFrom(entry.getValue().getClass())) {
+        metadata.put(entry.getKey(), new TreeMap<String, Object>((Map<String, Object>) entry.getValue()));
+      }
+    }
+    this.metadata = metadata;
+  }
+
+  public List<Relation> getRelations() {
+    return relations;
+  }
+
+  public void setRelations(List<Relation> relations) {
+    this.relations = relations;
+  }
 
 }
