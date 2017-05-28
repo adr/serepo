@@ -186,12 +186,15 @@ public class SeItems {
         return Response.ok(gitFileContent.stream, mimetype)
                        .build();
       } else {
-        git.readFilesByPath(commitId, seitem, new FileReader() {
+        git.readFilesByPath(commitId, path, new FileReader() {
           
           @Override
           public boolean read(GitFile gitFile) {
-            gitFileContent.stream = gitFile.getInputStream();
-            return false;
+            if (gitFile.getFullPath().equalsIgnoreCase(seitem+".md")) {
+              gitFileContent.stream = gitFile.getInputStream();
+              return false;
+            }
+            return true;
           }
         });
         if (gitFileContent.stream != null) {
@@ -206,6 +209,7 @@ public class SeItems {
             for (RelationDefinition relDef : relationsFile.getDefinitions()) {
               listOfHeadersToStop.add(relDef.getIdentifier());
             }
+            gitFileContent.stream.reset();
             String markdownContent = MarkdownReader.readContent(gitFileContent.stream, listOfHeadersToStop);
             return Response.ok(markdownContent, "text/markdown; charset=UTF-8").build();
           }
