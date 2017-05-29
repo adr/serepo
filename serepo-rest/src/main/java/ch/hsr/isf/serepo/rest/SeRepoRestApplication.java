@@ -3,17 +3,17 @@ package ch.hsr.isf.serepo.rest;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.swagger.jaxrs.config.BeanConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationPath("/")
 public class SeRepoRestApplication extends Application {
@@ -42,20 +42,29 @@ public class SeRepoRestApplication extends Application {
       if (!f.isFile()) {
         f = new File(".." + File.separator + "serepo-config.json");
         logger.info("Not found! Try to read settings from: " + f.getAbsolutePath());
-        checkIfFileExist(f);
       }
-      logger.info("File found at: " + f.getAbsolutePath());
-      logger.info("Reading settings...");
-      AppSettings appSettings = objectMapper.readValue(f, AppSettings.class);
-      
-      this.repositoriesDir = new File(appSettings.repositoriesDir);
-      this.repositoriesTempWorkingDir = new File(appSettings.repositoriesTempWorkingDir);
-      this.globalRelationDefinitionFile = new File(appSettings.globalRelationDefinitionFile);
-      this.solrUrl = appSettings.solrUrl;
-      
+      AppSettings appSettings;
+      if (f.isFile()) {
+        logger.info("File found at: " + f.getAbsolutePath());
+        logger.info("Reading settings...");
+        appSettings =  objectMapper.readValue(f, AppSettings.class);
+        this.repositoriesDir = new File(appSettings.repositoriesDir);
+        this.repositoriesTempWorkingDir = new File(appSettings.repositoriesTempWorkingDir);
+        this.globalRelationDefinitionFile = new File(appSettings.globalRelationDefinitionFile);
+        this.solrUrl = appSettings.solrUrl;
+      } else {
+        logger.info("Applyding default settings...");
+        Path tempDir = Files.createTempDirectory("serepo");
+        logger.info("Dir: " + tempDir.toString());
+        this.repositoriesDir = tempDir.resolve("repos").toFile();
+        this.repositoriesTempWorkingDir = tempDir.resolve("tmp").toFile();
+        this.globalRelationDefinitionFile = tempDir.resolve("relations.yml").toFile();
+        this.solrUrl = "http://localhost:8983/solr/serepo";
+      }
+
       createDirIfNecessary(this.repositoriesDir);
       createDirIfNecessary(this.repositoriesTempWorkingDir);
-      checkIfFileExist(globalRelationDefinitionFile);
+      // checkIfFileExist(globalRelationDefinitionFile);
       
       logger.info("Settings read. RESTful HTTP service up and running!");
       
