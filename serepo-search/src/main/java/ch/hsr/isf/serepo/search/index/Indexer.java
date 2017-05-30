@@ -1,8 +1,10 @@
 package ch.hsr.isf.serepo.search.index;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -144,6 +146,17 @@ public class Indexer implements AutoCloseable {
     for (Entry<String, Object> entry : metadata.entrySet()) {
       if (Map.class.isInstance(entry.getValue())) {
         addMetadataFieldsToDoc(doc, (Map) entry.getValue());
+      } else if (Collection.class.isInstance(entry.getValue())) {
+        Iterator iterator = ((Collection) entry.getValue()).iterator();
+        if (iterator.hasNext()) {
+          Object firstEntry = iterator.next();
+          if (Map.class.isInstance(firstEntry)) {
+            addMetadataFieldsToDoc(doc, (Map) firstEntry);
+            while (iterator.hasNext()) {
+              addMetadataFieldsToDoc(doc, (Map) iterator.next());
+            }
+          }
+        }
       } else {
         String metadataKey = cleanFieldName(entry.getKey());
         checkAndAddFieldToSolr(metadataKey);
