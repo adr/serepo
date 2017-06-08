@@ -141,6 +141,7 @@ public class RepositoriesView extends MasterActionLayout implements View, IRepos
     super.attach();
     presenter = new RepositoryPresenter(this);
     AppEventBus.register(this);
+    repositoriesContainer.selectLastRepository();
   }
 
   @Override

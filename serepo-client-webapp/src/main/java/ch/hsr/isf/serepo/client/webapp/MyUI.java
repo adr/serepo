@@ -1,5 +1,6 @@
 package ch.hsr.isf.serepo.client.webapp;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 import javax.servlet.annotation.WebServlet;
@@ -53,6 +54,9 @@ public class MyUI extends UI {
 //    VaadinSession.getCurrent().setAttribute(User.class.getName(), new User("WebUser", "user@serepo.com")); // TODO automatic login
     VaadinSession.getCurrent()
                  .setAttribute(Settings.class.getName(), Settings.read());
+    if (VaadinSession.getCurrent().getAttribute("table-selections") == null) {
+      VaadinSession.getCurrent().setAttribute("table-selections", new HashMap<Class<?>, Object>());
+    }
     updateContent();
   }
 

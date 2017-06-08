@@ -1,11 +1,13 @@
 package ch.hsr.isf.serepo.client.webapp.view.repositories;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.base.Optional;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
 
@@ -37,6 +39,8 @@ public class RepositoriesContainer extends CustomComponent {
 
       @Override
       public void itemClick(ItemClickEvent event) {
+        Map<Class<?>, Object> map = (Map<Class<?>, Object>) VaadinSession.getCurrent().getAttribute("table-selections");
+        map.put(RepositoriesContainer.class, event.getItemId());
         if (event.isDoubleClick()) {
           AppEventBus.post(new AppEvent.ItemDoubleClickevent<Repository>(container.getItem(table.getValue()).getBean()));
         }
@@ -45,6 +49,23 @@ public class RepositoriesContainer extends CustomComponent {
 
     setCompositionRoot(table);
 
+  }
+  
+  public void selectLastRepository() {
+    Map<Class<?>, Object> map = (Map<Class<?>, Object>) VaadinSession.getCurrent().getAttribute("table-selections");
+    selectRepository((Repository) map.get(RepositoriesContainer.class));
+  }
+  
+  public void selectRepository(Repository repoToSelect) {
+    table.select(null);
+    if (repoToSelect != null) {
+      for (Repository repo : container.getItemIds()) {
+        if (repo.getId().equals(repoToSelect.getId())) {
+          table.select(repo);
+          table.setCurrentPageFirstItemId(repo);
+        }
+      }
+    }
   }
 
   public void setRepositories(List<Repository> repositories) {
