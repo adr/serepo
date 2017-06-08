@@ -50,7 +50,7 @@ public class CommitsView extends MasterActionLayout implements View, ICommitsVie
     btnShowSeItems.addStyleName(ValoTheme.BUTTON_PRIMARY);
     btnShowSeItems.setIcon(AppViewType.SEITEMS.getIcon());
 
-    Button btnCheckConsistencyRelations = new Button("Check: Relations", new ClickListener() {
+    Button btnCheckConsistencyRelations = new Button("Check relations", new ClickListener() {
       private static final long serialVersionUID = -4483566291673913833L;
 
       @Override
