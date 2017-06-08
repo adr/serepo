@@ -51,7 +51,7 @@ public class RepositoriesContainer extends CustomComponent {
 
   }
   
-  public void selectLastRepository() {
+  public void selectLastSelectedRepository() {
     Map<Class<?>, Object> map = (Map<Class<?>, Object>) VaadinSession.getCurrent().getAttribute("table-selections");
     selectRepository((Repository) map.get(RepositoriesContainer.class));
   }
@@ -63,6 +63,7 @@ public class RepositoriesContainer extends CustomComponent {
         if (repo.getId().equals(repoToSelect.getId())) {
           table.select(repo);
           table.setCurrentPageFirstItemId(repo);
+          return;
         }
       }
     }
