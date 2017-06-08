@@ -45,7 +45,9 @@ public class Settings {
       }
       logger.info("File found at: " + f.getAbsolutePath());
       logger.info("Reading settings...");
-      return objectMapper.readValue(f, Settings.class);
+      Settings settings = objectMapper.readValue(f, Settings.class);
+      logger.info("Settings read.");
+      return settings;
       
     } catch (IOException e) {
       String message = String.format("Error while loading settings from file '%s'", SETTINGS_FILENAME);
