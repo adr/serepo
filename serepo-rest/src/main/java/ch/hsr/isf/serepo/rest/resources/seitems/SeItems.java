@@ -360,8 +360,8 @@ public class SeItems {
         for (SectionLink sectionLink : sectionLinks) {
           String target = null;
           try {
-            target = new URI(null, null, baseUri.toString(), null).resolve(sectionLink.getUrl().replace(".md", "")).toString();
-          } catch (URISyntaxException e) {
+            target = baseUri.resolve(sectionLink.getUrl().replace(".md", "")).toString();
+          } catch (IllegalArgumentException e) {
             target = sectionLink.getUrl();
           }
           RelationDefinition relDef = mapRelDef.get(sectionLink.getSection());
