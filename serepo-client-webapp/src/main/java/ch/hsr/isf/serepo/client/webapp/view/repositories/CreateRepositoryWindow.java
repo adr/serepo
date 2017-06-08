@@ -16,6 +16,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Field;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.TextArea;
@@ -23,6 +24,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
+import com.vaadin.ui.themes.ValoTheme;
 
 import ch.hsr.isf.serepo.client.webapp.model.Settings;
 import ch.hsr.isf.serepo.client.webapp.model.User;
@@ -44,7 +46,7 @@ public class CreateRepositoryWindow extends Window {
 
   public CreateRepositoryWindow() {
 
-    setCaption("Create new repository...");
+    setCaption("Create new repository");
     setWidth("600px");
     setHeight("450px");
     center();
@@ -78,7 +80,21 @@ public class CreateRepositoryWindow extends Window {
     fieldGroup.bind(taDescription, "description");
 
     setValidationVisible(false);
-    Button btnCreate = new Button("Create", new ClickListener() {
+    HorizontalLayout hlButtons = createButtons();
+
+    VerticalLayout vl = new VerticalLayout(tfRepositoryName, taDescription, hlButtons);
+    vl.setSizeFull();
+    vl.setMargin(true);
+    vl.setSpacing(true);
+    vl.setExpandRatio(taDescription, 1.0f);
+    vl.setComponentAlignment(hlButtons, Alignment.MIDDLE_RIGHT);
+
+    setContent(vl);
+
+  }
+
+  private HorizontalLayout createButtons() {
+    Button btnCreate = new Button("Create repository", new ClickListener() {
       private static final long serialVersionUID = -430904124443580740L;
 
       @Override
@@ -91,16 +107,23 @@ public class CreateRepositoryWindow extends Window {
         }
       }
     });
+    btnCreate.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+    
+    Button btnAbort = new Button("Cancel", new ClickListener() {
+      private static final long serialVersionUID = -1646992199213151472L;
 
-    VerticalLayout vl = new VerticalLayout(tfRepositoryName, taDescription, btnCreate);
-    vl.setSizeFull();
-    vl.setMargin(true);
-    vl.setSpacing(true);
-    vl.setExpandRatio(taDescription, 1.0f);
-    vl.setComponentAlignment(btnCreate, Alignment.MIDDLE_RIGHT);
-
-    setContent(vl);
-
+      @Override
+      public void buttonClick(ClickEvent event) {
+        close();
+      }
+    });
+    
+    HorizontalLayout hlButtons = new HorizontalLayout(btnCreate, btnAbort);
+    hlButtons.setComponentAlignment(btnCreate, Alignment.MIDDLE_LEFT);
+    hlButtons.setComponentAlignment(btnAbort, Alignment.MIDDLE_RIGHT);
+    hlButtons.setWidth("100%");
+    hlButtons.setSpacing(true);
+    return hlButtons;
   }
 
   private void setValidationVisible(boolean visible) {
