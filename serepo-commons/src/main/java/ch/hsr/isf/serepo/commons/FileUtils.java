@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
@@ -18,6 +19,12 @@ public class FileUtils {
 	
 	public static String cleanFilename(String filename) {
 		return filename.replaceAll("[^a-zA-Z0-9\\@\\!\\#\\%\\&\\(\\)\\_\\-\\=\\+\\[\\]\\{\\}\\,\\;\\.äÄöÖüÜ ]+", "_");
+	}
+	
+	public static boolean isValidRepositoryName(String name) {
+	  boolean empty = Strings.isNullOrEmpty(name);
+	  boolean validChars = Strings.nullToEmpty(name).matches("[a-zA-Z0-9-]+");
+	  return !empty && validChars;
 	}
 	
 	public static String relativize(File rootDir, File file) {
