@@ -80,7 +80,11 @@ public class MarkdownUtils {
   }
 
   public static Link toLink(ExpLinkNode node) {
-    return new Link(getText(node).or(""), node.title, node.url);
+    return new Link(getText(node).or(""), node.title, decodeUrl(node.url));
+  }
+  
+  private static String decodeUrl(String url) {
+    return url.replace("%28", "(").replace("%29", ")").replace("%5B", "[").replace("%5D", "]");
   }
 
   public static Link toLink(RefLinkNode refLinkNode, ReferenceNode referenceNode) {

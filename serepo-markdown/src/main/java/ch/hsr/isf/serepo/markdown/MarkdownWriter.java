@@ -81,11 +81,13 @@ public class MarkdownWriter {
       throws IOException {
     for (Link link : links) {
       String url = Strings.nullToEmpty(link.getUrl());
+      // we have to escape ()[] with corresponding URL encodes!
+      url = urlEncode(url);
       String text;
       if (Strings.isNullOrEmpty(link.getText())) {
         text = url;
       } else {
-        text = link.getText();
+        text = urlEncode(link.getText());
       }
       if (Strings.isNullOrEmpty(link.getTitle())) {
         writeLink(outputStreamWriter, text, url);
@@ -94,6 +96,10 @@ public class MarkdownWriter {
       }
       writeNewLine(outputStreamWriter);
     }
+  }
+  
+  private String urlEncode(String s) {
+    return s.replace("(", "%28").replace(")", "%29").replace("[", "%5B").replace("]", "%5D");
   }
 
   private void writeLink(OutputStreamWriter outputStreamWriter, String text, String url)
