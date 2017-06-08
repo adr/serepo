@@ -4,9 +4,13 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
 
+import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
+import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
 import ch.hsr.isf.serepo.client.webapp.view.UserConverter;
 import ch.hsr.isf.serepo.data.restinterface.commit.Commit;
 
@@ -26,6 +30,17 @@ public class CommitContainer extends CustomComponent {
     table.setColumnHeaders("Description", "Author", "Date");
     table.setConverter("author", new UserConverter());
     table.setCaptionAsHtml(true);
+    table.setNullSelectionAllowed(false);
+    table.addItemClickListener(new ItemClickListener() {
+      private static final long serialVersionUID = 684301669055888L;
+
+      @Override
+      public void itemClick(ItemClickEvent event) {
+        if (event.isDoubleClick()) {
+          AppEventBus.post(new AppEvent.ItemDoubleClickevent<Commit>(container.getItem(table.getValue()).getBean()));
+        }
+      }
+    });
   
     setSizeFull();
     setCompositionRoot(table);

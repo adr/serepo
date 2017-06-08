@@ -14,6 +14,16 @@ public class AppEvent {
     }
 
   }
+  
+  public static class ItemDoubleClickevent<T> {
+    private final T item;
+    public ItemDoubleClickevent(T item) {
+      this.item = item;
+    }
+    public T getItem() {
+      return item;
+    }
+  }
 
   public static class UserLoginRequestEvent {
     private final String username;
