@@ -1,11 +1,13 @@
 package ch.hsr.isf.serepo.client.webapp.view.commits;
 
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.base.Optional;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
 
@@ -36,6 +38,8 @@ public class CommitContainer extends CustomComponent {
 
       @Override
       public void itemClick(ItemClickEvent event) {
+        Map<Class<?>, Object> map = (Map<Class<?>, Object>) VaadinSession.getCurrent().getAttribute("table-selections");
+        map.put(CommitContainer.class, event.getItemId());
         if (event.isDoubleClick()) {
           AppEventBus.post(new AppEvent.ItemDoubleClickevent<Commit>(container.getItem(table.getValue()).getBean()));
         }
@@ -47,9 +51,29 @@ public class CommitContainer extends CustomComponent {
     
   }
   
+  public void selectLastSelectedCommit() {
+    Map<Class<?>, Object> map = (Map<Class<?>, Object>) VaadinSession.getCurrent().getAttribute("table-selections");
+    selectCommit((Commit) map.get(CommitContainer.class));
+  }
+  
+  public void selectCommit(Commit commitToSelect) {
+    table.select(null);
+    if (commitToSelect != null) {
+      System.out.println("commit is not null");
+      for (Commit commit : container.getItemIds()) {
+        if (commit.getId().equals(commitToSelect.getId())) {
+          table.select(commit);
+          table.setCurrentPageFirstItemId(commit);
+          return;
+        }
+      }
+    }
+  }
+  
   public void setCommits(List<Commit> commits) {
     container.removeAllItems();
     container.addAll(commits);
+    System.out.println("commits setted");
   }
 
   public Optional<Commit> getSelectedCommit() {

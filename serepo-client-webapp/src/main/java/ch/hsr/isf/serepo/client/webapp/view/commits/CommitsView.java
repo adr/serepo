@@ -128,6 +128,7 @@ public class CommitsView extends MasterActionLayout implements View, ICommitsVie
       String repository = event.getParameters()
                                .split("/")[0];
       presenter.load(repository);
+      commitContainer.selectLastSelectedCommit();
       String title = String.format("Commits in repository '%s'", repository);
       AppEventBus.post(new AppEvent.TitleChangeEvent(title));
     }
