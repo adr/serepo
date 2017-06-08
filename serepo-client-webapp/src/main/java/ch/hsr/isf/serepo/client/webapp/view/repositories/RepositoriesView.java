@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
@@ -54,7 +55,7 @@ public class RepositoriesView extends MasterActionLayout implements View, IRepos
             processSelectedRepository(new RepositoryCallback() {
               @Override
               public void callback(Repository repository) {
-                AppNavigator.navigateTo(AppViewType.COMMITS, repository.getName());
+                navigateToCommits(repository);
               }
             });
           }
@@ -125,6 +126,10 @@ public class RepositoriesView extends MasterActionLayout implements View, IRepos
       Notification.show("Please select a repository.", Type.WARNING_MESSAGE);
     }
   }
+  
+  private void navigateToCommits(Repository repository) {
+    AppNavigator.navigateTo(AppViewType.COMMITS, repository.getName());
+  }
 
   @Override
   public void setRepositories(List<Repository> repositories) {
@@ -135,8 +140,20 @@ public class RepositoriesView extends MasterActionLayout implements View, IRepos
   public void attach() {
     super.attach();
     presenter = new RepositoryPresenter(this);
+    AppEventBus.register(this);
   }
 
+  @Override
+  public void detach() {
+    AppEventBus.unregister(this);
+    super.detach();
+  }
+
+  @Subscribe
+  public void itemDoubleClicked(AppEvent.ItemDoubleClickevent<Repository> event) {
+    navigateToCommits(event.getItem());
+  }
+  
   @Override
   public void enter(ViewChangeEvent event) {}
 
