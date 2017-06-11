@@ -7,6 +7,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -132,6 +134,22 @@ public class SeItems {
     } catch (RuntimeException e) {
       throw e.getCause();
     }
+    Collections.sort(seItems, new Comparator<SeItem>() {
+
+      @Override
+      public int compare(SeItem s1, SeItem s2) {
+        int compare = 0;
+        int numberOfFoldersS1 = s1.getFolder().split("/").length;
+        int numberOfFoldersS2 = s2.getFolder().split("/").length;
+        if (numberOfFoldersS1 == numberOfFoldersS2) {
+          compare = s1.getFolder().compareTo(s2.getFolder());
+        } else {
+          compare = Integer.compare(numberOfFoldersS1, numberOfFoldersS2);
+        }
+        return compare;
+      }
+      
+    });
     return seItems;
   }
   
