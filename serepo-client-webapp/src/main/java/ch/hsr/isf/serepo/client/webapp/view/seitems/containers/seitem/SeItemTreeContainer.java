@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -24,6 +25,8 @@ import com.vaadin.ui.Tree.ExpandEvent;
 import com.vaadin.ui.Tree.ExpandListener;
 import com.vaadin.ui.VerticalLayout;
 
+import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
+import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
 
 public class SeItemTreeContainer extends CustomComponent {
@@ -139,6 +142,35 @@ public class SeItemTreeContainer extends CustomComponent {
     this.listener = listener;
   }
 
+  @Override
+  public void attach() {
+    super.attach();
+    AppEventBus.register(this);
+  }
+
+  @Override
+  public void detach() {
+    AppEventBus.unregister(this);
+    super.detach();
+  }
+
+  @Subscribe
+  public void selectSeItem(AppEvent.SelectSeItemInTree event) {
+    for (Object itemId : container.getItemIds()) {
+      if (((TreeItem) itemId).getId().toString().equals(event.getUriOfSeItem())) {
+        tree.select(itemId);
+        expandItemsRecursevlyUp(itemId);
+      }
+    }
+  }
+  
+  private void expandItemsRecursevlyUp(Object itemId) {
+    if (itemId != null) {
+      tree.expandItem(itemId);
+      expandItemsRecursevlyUp(container.getParent(itemId));
+    }
+  }
+
   public void setSeItems(List<SeItem> seItems) {
     this.seItems = seItems;
     container.removeAllItems();
@@ -153,7 +185,6 @@ public class SeItemTreeContainer extends CustomComponent {
       pathToSeTreeItem.put(seItem.getFolder() + seItem.getName(), seItemTreeItem);
 
     }
-
   }
   
   private LinkedList<TreeItem> createFolders(SeItem seItem) {

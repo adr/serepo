@@ -20,6 +20,10 @@ public class TreeItem {
     this.icon = icon;
   }
 
+  public Object getId() {
+    return id;
+  }
+
   public String getPath() {
     return path;
   }

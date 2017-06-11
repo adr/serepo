@@ -2,6 +2,19 @@ package ch.hsr.isf.serepo.client.webapp.event;
 
 public class AppEvent {
 
+  public static class SelectSeItemInTree {
+    private String uriOfSeItem;
+
+    public SelectSeItemInTree(String uriOfSeItem) {
+      this.uriOfSeItem = uriOfSeItem;
+    }
+
+    public String getUriOfSeItem() {
+      return uriOfSeItem;
+    }
+
+  }
+
   public static class TitleChangeEvent {
     private final String title;
 
@@ -14,12 +27,14 @@ public class AppEvent {
     }
 
   }
-  
+
   public static class ItemDoubleClickevent<T> {
     private final T item;
+
     public ItemDoubleClickevent(T item) {
       this.item = item;
     }
+
     public T getItem() {
       return item;
     }
