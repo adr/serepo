@@ -1,6 +1,9 @@
 package ch.hsr.isf.serepo.client.webapp.view.seitems.containers.seitem;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -24,14 +27,15 @@ public class SeItemTreeContainer extends CustomComponent {
 	}
 
 	private final Tree tree;
-	private final HierarchicalContainer container;
+	private final HierarchicalContainer container = new HierarchicalContainer();
+	private Map<String, SeItemTreeItem> pathToSeTreeItem = new HashMap<String, SeItemTreeItem>();
 	private Listener listener;
 	
 	public SeItemTreeContainer() {
 
 		setSizeFull();
 		
-		tree = new Tree(null, container = new HierarchicalContainer());
+		tree = new Tree(null, container);
 		tree.setSizeUndefined();
 		tree.setSelectable(true);
 		tree.setNullSelectionAllowed(false);
@@ -42,7 +46,7 @@ public class SeItemTreeContainer extends CustomComponent {
 			@Override
 			public void itemClick(ItemClickEvent event) {
 				Object itemId = event.getItemId();
-				if (FolderTreeItem.class == itemId.getClass()) {
+				if (tree.hasChildren(itemId)) {
 					if (tree.isExpanded(itemId)) {
 						tree.collapseItem(itemId);
 					} else {
@@ -56,11 +60,13 @@ public class SeItemTreeContainer extends CustomComponent {
 
 			@Override
 			public void valueChange(ValueChangeEvent event) {
-				if (SeItemTreeItem.class == event.getProperty().getValue().getClass()) {
-					if (listener != null) {
-						listener.seItemClicked(((SeItemTreeItem) event.getProperty().getValue()));
-					}
-				}
+			  if (event.getProperty().getValue() != null) {
+			    if (SeItemTreeItem.class == event.getProperty().getValue().getClass()) {
+			      if (listener != null) {
+			        listener.seItemClicked(((SeItemTreeItem) event.getProperty().getValue()));
+			      }
+			    }
+			  }
 			}
 		});
 		
@@ -77,36 +83,55 @@ public class SeItemTreeContainer extends CustomComponent {
 
 	public void setSeItems(List<SeItem> seItems) {
 		container.removeAllItems();
-		for (SeItem seItem : seItems) {
-			String[] folders = seItem.getFolder().split("/");
-			if (folders[0].isEmpty()) {
-				SeItemTreeItem seItemTreeItem = new SeItemTreeItem(seItem);
-				container.addItem(seItemTreeItem);
-				container.setChildrenAllowed(seItemTreeItem, false);
-			} else {
-				StringBuilder sbFolders = new StringBuilder();
-				sbFolders.append(folders[0]).append("/");
-				
-				FolderTreeItem rootFolder = new FolderTreeItem(sbFolders.toString(), folders[0], sbFolders.toString());
-				container.addItem(rootFolder);
-				tree.setItemIcon(rootFolder, FontAwesome.FOLDER_O);
+		pathToSeTreeItem.clear();
 
-				Object parentId = rootFolder;
-				for (int i = 1; i < folders.length; i++) {
-					sbFolders.append(folders[i]).append("/");
-					FolderTreeItem folder = new FolderTreeItem(sbFolders.toString(), folders[i], sbFolders.toString());
-					container.addItem(folder);
-					container.setParent(folder, parentId);
-					tree.setItemIcon(folder, FontAwesome.FOLDER_O);
-					parentId = folder;
-				}
-				SeItemTreeItem seItemTreeItem = new SeItemTreeItem(seItem);
-				container.addItem(seItemTreeItem);
-				container.setParent(seItemTreeItem, parentId);
-				container.setChildrenAllowed(seItemTreeItem, false);
-				tree.setItemIcon(seItemTreeItem, FontAwesome.FILE_O);
-			}
+		for (SeItem seItem : seItems) {
+		  LinkedList<TreeItem> folders = createFolders(seItem);
+		  
+		  SeItemTreeItem seItemTreeItem = new SeItemTreeItem(seItem);
+		  container.addItem(seItemTreeItem);
+		  container.setParent(seItemTreeItem, folders.peekLast());
+		  container.setChildrenAllowed(seItemTreeItem, false);
+		  tree.setItemIcon(seItemTreeItem, FontAwesome.FILE_O);
+		  pathToSeTreeItem.put(seItem.getFolder() + seItem.getName(), seItemTreeItem);
+		  
 		}
+		
+	}
+	
+	private LinkedList<TreeItem> createFolders(SeItem seItem) {
+	  LinkedList<TreeItem> listFolderTreeItems = new LinkedList<>();
+	  TreeItem currentParent = null;
+	  String[] folders = seItem.getFolder().split("/");
+	  StringBuilder currentFolderPath = new StringBuilder();
+
+	  String folderDelimiter = "";
+      for (String folder : folders) {
+        currentFolderPath.append(folderDelimiter).append(folder);
+        
+        if (!pathToSeTreeItem.containsKey(currentFolderPath.toString())) {
+          // there is no SE-Item which represents current folder!
+          FolderTreeItem folderTreeItem = new FolderTreeItem(currentFolderPath.toString(), folder, currentFolderPath.toString());
+          container.addItem(folderTreeItem);
+          container.setParent(folderTreeItem, currentParent);
+          tree.setItemIcon(folderTreeItem, FontAwesome.FOLDER_O);
+          currentParent = folderTreeItem;
+          listFolderTreeItems.add(folderTreeItem);
+        } else {
+          // there is a SE-Item which represents current folder!
+          // no folder will be created!
+          SeItemTreeItem seItemTreeItem = pathToSeTreeItem.get(currentFolderPath.toString());
+          container.setChildrenAllowed(seItemTreeItem, true);
+          tree.setItemIcon(seItemTreeItem, FontAwesome.FOLDER_O);
+          currentParent = seItemTreeItem; // set SE-ItemTreeItem as parent!
+          listFolderTreeItems.add(seItemTreeItem);
+        }
+        
+        if (folderDelimiter.isEmpty()) {
+          folderDelimiter = "/";
+        }
+      }
+      return listFolderTreeItems;
 	}
 	
 }
