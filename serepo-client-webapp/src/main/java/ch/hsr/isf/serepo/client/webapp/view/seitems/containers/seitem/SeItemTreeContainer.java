@@ -5,18 +5,23 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.HierarchicalContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
-import com.vaadin.server.FontAwesome;
+import com.vaadin.server.Resource;
 import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.Tree.CollapseEvent;
+import com.vaadin.ui.Tree.CollapseListener;
+import com.vaadin.ui.Tree.ExpandEvent;
+import com.vaadin.ui.Tree.ExpandListener;
 import com.vaadin.ui.VerticalLayout;
 
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
@@ -41,11 +46,14 @@ public class SeItemTreeContainer extends CustomComponent {
 
     setSizeFull();
 
+    container.addContainerProperty("icon", Resource.class, null);
+
     tree = new Tree(null, container);
     tree.setSizeUndefined();
     tree.setSelectable(true);
     tree.setNullSelectionAllowed(false);
     tree.setItemCaptionMode(ItemCaptionMode.ID_TOSTRING);
+    tree.setItemIconPropertyId("icon");
     tree.addItemClickListener(new ItemClickListener() {
       private static final long serialVersionUID = -7738562408316085806L;
 
@@ -54,11 +62,27 @@ public class SeItemTreeContainer extends CustomComponent {
         Object itemId = event.getItemId();
         if (tree.hasChildren(itemId)) {
           if (tree.isExpanded(itemId)) {
-            tree.collapseItem(itemId);
+            tree.collapseItem(itemId);      
           } else {
             tree.expandItem(itemId);
           }
         }
+      }
+    });
+    tree.addCollapseListener(new CollapseListener() {
+      private static final long serialVersionUID = 1635470441516221761L;
+
+      @Override
+      public void nodeCollapse(CollapseEvent event) {
+        toggleFolderIcon(event.getItemId());
+      }
+    });
+    tree.addExpandListener(new ExpandListener() {
+      private static final long serialVersionUID = -6109682679971665988L;
+
+      @Override
+      public void nodeExpand(ExpandEvent event) {
+        toggleFolderIcon(event.getItemId());
       }
     });
     tree.addValueChangeListener(new ValueChangeListener() {
@@ -97,6 +121,19 @@ public class SeItemTreeContainer extends CustomComponent {
     });
 
   }
+  
+  @SuppressWarnings("unchecked")
+  private void toggleFolderIcon(Object itemId) {
+    if (itemId != null && TreeItem.class.isInstance(itemId)) {
+      TreeItem treeItem = (TreeItem) itemId;
+      if (treeItem.getIcon() == FolderTreeItem.ICON_CLOSED) {
+        treeItem.setIcon(FolderTreeItem.ICON_OPEN);
+      } else {
+        treeItem.setIcon(FolderTreeItem.ICON_CLOSED);
+      }
+      container.getItem(itemId).getItemProperty("icon").setValue(treeItem.getIcon());
+    }
+  }
 
   public void setListener(Listener listener) {
     this.listener = listener;
@@ -111,16 +148,14 @@ public class SeItemTreeContainer extends CustomComponent {
       LinkedList<TreeItem> folders = createFolders(seItem);
 
       SeItemTreeItem seItemTreeItem = new SeItemTreeItem(seItem);
-      container.addItem(seItemTreeItem);
-      container.setParent(seItemTreeItem, folders.peekLast());
+      addItem(seItemTreeItem, folders.peekLast());
       container.setChildrenAllowed(seItemTreeItem, false);
-      tree.setItemIcon(seItemTreeItem, FontAwesome.FILE_O);
       pathToSeTreeItem.put(seItem.getFolder() + seItem.getName(), seItemTreeItem);
 
     }
 
   }
-
+  
   private LinkedList<TreeItem> createFolders(SeItem seItem) {
     LinkedList<TreeItem> listFolderTreeItems = new LinkedList<>();
     TreeItem currentParent = null;
@@ -141,8 +176,7 @@ public class SeItemTreeContainer extends CustomComponent {
           // there is a SE-Item which represents current folder!
           // no folder will be created!
           SeItemTreeItem seItemTreeItem = pathToSeTreeItem.get(currentFolderPath.toString());
-          container.setChildrenAllowed(seItemTreeItem, true);
-          tree.setItemIcon(seItemTreeItem, FontAwesome.FOLDER_O);
+          configAsFolder(seItemTreeItem);
           currentParent = seItemTreeItem; // set SE-ItemTreeItem as parent!
           listFolderTreeItems.add(seItemTreeItem);
         }
@@ -159,12 +193,27 @@ public class SeItemTreeContainer extends CustomComponent {
     return listFolderTreeItems;
   }
 
-  private FolderTreeItem createFolderTreeitem(TreeItem currentParent, StringBuilder currentFolderPath, String folder) {
-    FolderTreeItem folderTreeItem = new FolderTreeItem(currentFolderPath.toString(), folder, currentFolderPath.toString());
-    container.addItem(folderTreeItem);
-    container.setParent(folderTreeItem, currentParent);
-    tree.setItemIcon(folderTreeItem, FontAwesome.FOLDER_O);
+  private FolderTreeItem createFolderTreeitem(TreeItem currentParent, StringBuilder currentFolderPath, String caption) {
+    FolderTreeItem folderTreeItem = new FolderTreeItem(currentFolderPath.toString(), currentFolderPath.toString(), caption);
+    addItem(folderTreeItem, currentParent);
+    configAsFolder(folderTreeItem);
     return folderTreeItem;
+  }
+  
+  @SuppressWarnings("unchecked")
+  private void addItem(TreeItem treeItem, TreeItem parent) {
+    if (!container.containsId(treeItem)) {
+      Item item = container.addItem(treeItem);
+      item.getItemProperty("icon").setValue(treeItem.getIcon());
+      container.setParent(treeItem, parent);
+    }
+  }
+  
+  @SuppressWarnings("unchecked")
+  private void configAsFolder(TreeItem item) {
+    container.setChildrenAllowed(item, true);
+    item.setIcon(FolderTreeItem.ICON_CLOSED);
+    container.getItem(item).getItemProperty("icon").setValue(item.getIcon());
   }
 
 }
