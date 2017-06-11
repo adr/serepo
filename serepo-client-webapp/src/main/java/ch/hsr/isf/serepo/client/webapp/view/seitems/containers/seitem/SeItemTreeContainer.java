@@ -61,16 +61,31 @@ public class SeItemTreeContainer extends CustomComponent {
     configureFilter();
     tree = createTree();
 
-    Panel panel = new Panel(tree);
-    panel.setSizeFull();
+    createComponent();
 
-    VerticalLayout vlPanel = new VerticalLayout(seItemFilter, panel, chbxSeItemCanRepresentFolder);
-    vlPanel.setSizeFull();
-    vlPanel.setSpacing(true);
-    vlPanel.setExpandRatio(panel, 1f);
-    vlPanel.setComponentAlignment(chbxSeItemCanRepresentFolder, Alignment.BOTTOM_LEFT);
+  }
 
-    setCompositionRoot(vlPanel);
+  private void createComponent() {
+    Panel panelForTree = new Panel(tree);
+    panelForTree.addStyleName(ValoTheme.PANEL_BORDERLESS);
+    panelForTree.setSizeFull();
+    
+    VerticalLayout vlFilterAndTree = new VerticalLayout(seItemFilter, panelForTree);
+    vlFilterAndTree.setSizeFull();
+    vlFilterAndTree.setSpacing(true);
+    vlFilterAndTree.setMargin(true);
+    vlFilterAndTree.setExpandRatio(panelForTree, 1f);
+    
+    Panel panelForSeItems = new Panel(vlFilterAndTree);
+    panelForSeItems.setSizeFull();
+
+    VerticalLayout vlRootPanel = new VerticalLayout(panelForSeItems, chbxSeItemCanRepresentFolder);
+    vlRootPanel.setSizeFull();
+    vlRootPanel.setSpacing(true);
+    vlRootPanel.setExpandRatio(panelForSeItems, 1f);
+    vlRootPanel.setComponentAlignment(chbxSeItemCanRepresentFolder, Alignment.BOTTOM_LEFT);
+
+    setCompositionRoot(vlRootPanel);
 
     chbxSeItemCanRepresentFolder.addValueChangeListener(new ValueChangeListener() {
       private static final long serialVersionUID = 7940276200234018080L;
@@ -80,7 +95,6 @@ public class SeItemTreeContainer extends CustomComponent {
         setSeItems(seItems);
       }
     });
-
   }
 
   private Tree createTree() {
