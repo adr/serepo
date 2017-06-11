@@ -59,7 +59,6 @@ public class CommitContainer extends CustomComponent {
   public void selectCommit(Commit commitToSelect) {
     table.select(null);
     if (commitToSelect != null) {
-      System.out.println("commit is not null");
       for (Commit commit : container.getItemIds()) {
         if (commit.getId().equals(commitToSelect.getId())) {
           table.select(commit);
@@ -73,7 +72,6 @@ public class CommitContainer extends CustomComponent {
   public void setCommits(List<Commit> commits) {
     container.removeAllItems();
     container.addAll(commits);
-    System.out.println("commits setted");
   }
 
   public Optional<Commit> getSelectedCommit() {
