@@ -1,9 +1,11 @@
 package ch.hsr.isf.serepo.client.webapp.view.seitems.containers;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import javax.ws.rs.core.MediaType;
 
@@ -12,10 +14,10 @@ import org.pegdown.PegDownProcessor;
 import org.pegdown.plugins.PegDownPlugins;
 
 import com.google.common.io.ByteStreams;
+import com.google.common.io.CharStreams;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FileDownloader;
 import com.vaadin.shared.ui.label.ContentMode;
-import com.vaadin.ui.BrowserFrame;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -66,27 +68,28 @@ public class ContentContainer extends CustomComponent {
 			
 			MediaType mediaType = getMediaType(urlConnection.getContentType());
 			if (MediaType.TEXT_HTML_TYPE.equals(mediaType)) {
-				BrowserFrame browserFrame = new BrowserFrame(null, new ExternalResource(src));
-				browserFrame.setSizeFull();
-				content = browserFrame;
+			  String htmlContent = CharStreams.toString(new InputStreamReader(urlConnection.getInputStream(), StandardCharsets.UTF_8));
+			  Label label = new Label(htmlContent, ContentMode.HTML);
+			  content = label;
             } else if (MARKDOWN_TYPE.isCompatible(mediaType)) {
               String mdHtml = markdownToHtml(urlConnection);
               content = new Label(mdHtml, ContentMode.HTML);
 			} else if (MediaType.TEXT_PLAIN_TYPE.isCompatible(mediaType)) {
-				content = new Label((String) urlConnection.getContent());
+			  String txtContent = CharStreams.toString(new InputStreamReader(urlConnection.getInputStream(), StandardCharsets.UTF_8));
+			  content = new Label(txtContent);
 			} else if (IMAGE_TYPE.isCompatible(mediaType)) {
-				Image image = new Image(null, new ExternalResource(src));
-				image.setSizeUndefined();
-				content = image;
+			  Image image = new Image(null, new ExternalResource(src));
+			  image.setSizeUndefined();
+			  content = image;
 			} else if (PDF_TYPE.isCompatible(mediaType)) {
-				Embedded embedded = new Embedded(null, new ExternalResource(src));
-				embedded.setSizeFull();
-				content = embedded;
+			  Embedded embedded = new Embedded(null, new ExternalResource(src));
+			  embedded.setSizeFull();
+			  content = embedded;
 			} else {
-				Button btnDownload = new Button("Download resource");
-				btnDownload.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-				new FileDownloader(new ExternalResource(src)).extend(btnDownload);
-				content = btnDownload;
+			  Button btnDownload = new Button("Download resource");
+			  btnDownload.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+			  new FileDownloader(new ExternalResource(src)).extend(btnDownload);
+			  content = btnDownload;
 			}
 
 		} catch (IOException e) {
