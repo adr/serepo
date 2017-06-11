@@ -1,29 +1,37 @@
 package ch.hsr.isf.serepo.client.webapp.view.seitems.containers.seitem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.google.common.eventbus.Subscribe;
+import com.vaadin.data.Container.Filter;
 import com.vaadin.data.Item;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.HierarchicalContainer;
+import com.vaadin.data.util.filter.SimpleStringFilter;
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.Tree.CollapseEvent;
 import com.vaadin.ui.Tree.CollapseListener;
 import com.vaadin.ui.Tree.ExpandEvent;
 import com.vaadin.ui.Tree.ExpandListener;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 
 import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
@@ -37,6 +45,7 @@ public class SeItemTreeContainer extends CustomComponent {
     void seItemClicked(SeItemTreeItem seItemTreeItem);
   }
 
+  private TextField seItemFilter = new TextField();
   private final Tree tree;
   private final HierarchicalContainer container = new HierarchicalContainer();
   private Map<String, SeItemTreeItem> pathToSeTreeItem = new HashMap<String, SeItemTreeItem>();
@@ -48,10 +57,34 @@ public class SeItemTreeContainer extends CustomComponent {
   public SeItemTreeContainer() {
 
     setSizeFull();
+    addContainerProperties();
+    configureFilter();
+    tree = createTree();
 
-    container.addContainerProperty("icon", Resource.class, null);
+    Panel panel = new Panel(tree);
+    panel.setSizeFull();
 
-    tree = new Tree(null, container);
+    VerticalLayout vlPanel = new VerticalLayout(seItemFilter, panel, chbxSeItemCanRepresentFolder);
+    vlPanel.setSizeFull();
+    vlPanel.setSpacing(true);
+    vlPanel.setExpandRatio(panel, 1f);
+    vlPanel.setComponentAlignment(chbxSeItemCanRepresentFolder, Alignment.BOTTOM_LEFT);
+
+    setCompositionRoot(vlPanel);
+
+    chbxSeItemCanRepresentFolder.addValueChangeListener(new ValueChangeListener() {
+      private static final long serialVersionUID = 7940276200234018080L;
+
+      @Override
+      public void valueChange(ValueChangeEvent event) {
+        setSeItems(seItems);
+      }
+    });
+
+  }
+
+  private Tree createTree() {
+    final Tree tree = new Tree(null, container);
     tree.setSizeUndefined();
     tree.setSelectable(true);
     tree.setNullSelectionAllowed(false);
@@ -102,29 +135,33 @@ public class SeItemTreeContainer extends CustomComponent {
         }
       }
     });
+    return tree;
+  }
 
-    Panel panel = new Panel(tree);
-    panel.setSizeFull();
-
-    VerticalLayout vlPanel = new VerticalLayout(panel, chbxSeItemCanRepresentFolder);
-    vlPanel.setSizeFull();
-    vlPanel.setSpacing(true);
-    vlPanel.setExpandRatio(panel, 1f);
-    vlPanel.setComponentAlignment(chbxSeItemCanRepresentFolder, Alignment.BOTTOM_LEFT);
-
-    setCompositionRoot(vlPanel);
-
-    chbxSeItemCanRepresentFolder.addValueChangeListener(new ValueChangeListener() {
-      private static final long serialVersionUID = 7940276200234018080L;
-
-      @Override
-      public void valueChange(ValueChangeEvent event) {
-        setSeItems(seItems);
-      }
-    });
-
+  private void addContainerProperties() {
+    container.addContainerProperty("icon", Resource.class, null);
+    container.addContainerProperty("caption", String.class, "");
   }
   
+  private void configureFilter() {
+    seItemFilter.setInputPrompt("filter SE-Items");
+    seItemFilter.setWidth("100%");
+    seItemFilter.setIcon(FontAwesome.FILTER);
+    seItemFilter.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+    seItemFilter.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
+    seItemFilter.addTextChangeListener(new TextChangeListener() {
+      private static final long serialVersionUID = 5766472482743286483L;
+
+      @Override
+      public void textChange(TextChangeEvent event) {
+        tree.select(null);
+        container.removeAllContainerFilters();
+        container.addContainerFilter(new SimpleStringFilter("caption", event.getText(), true, false));
+      }
+    });
+  }
+  
+
   @SuppressWarnings("unchecked")
   private void toggleFolderIcon(Object itemId) {
     if (itemId != null && TreeItem.class.isInstance(itemId)) {
@@ -173,17 +210,24 @@ public class SeItemTreeContainer extends CustomComponent {
 
   public void setSeItems(List<SeItem> seItems) {
     this.seItems = seItems;
-    container.removeAllItems();
-    pathToSeTreeItem.clear();
-
-    for (SeItem seItem : seItems) {
-      LinkedList<TreeItem> folders = createFolders(seItem);
-
-      SeItemTreeItem seItemTreeItem = new SeItemTreeItem(seItem);
-      addItem(seItemTreeItem, folders.peekLast());
-      container.setChildrenAllowed(seItemTreeItem, false);
-      pathToSeTreeItem.put(seItem.getFolder() + seItem.getName(), seItemTreeItem);
-
+    List<Filter> filters = new ArrayList<Filter>(container.getContainerFilters());
+    container.removeAllContainerFilters();
+    try {
+      container.removeAllItems();
+      pathToSeTreeItem.clear();
+      for (SeItem seItem : seItems) {
+        LinkedList<TreeItem> folders = createFolders(seItem);
+  
+        SeItemTreeItem seItemTreeItem = new SeItemTreeItem(seItem);
+        addItem(seItemTreeItem, folders.peekLast());
+        container.setChildrenAllowed(seItemTreeItem, false);
+        pathToSeTreeItem.put(seItem.getFolder() + seItem.getName(), seItemTreeItem);
+  
+      }
+    } finally {
+      for (Filter filter : filters) {
+        container.addContainerFilter(filter);
+      }
     }
   }
   
@@ -235,6 +279,7 @@ public class SeItemTreeContainer extends CustomComponent {
   private void addItem(TreeItem treeItem, TreeItem parent) {
     if (!container.containsId(treeItem)) {
       Item item = container.addItem(treeItem);
+      item.getItemProperty("caption").setValue(treeItem.toString());
       item.getItemProperty("icon").setValue(treeItem.getIcon());
       container.setParent(treeItem, parent);
     }
