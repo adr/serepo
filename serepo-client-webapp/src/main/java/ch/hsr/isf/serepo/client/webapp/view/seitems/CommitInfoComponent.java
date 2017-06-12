@@ -2,6 +2,7 @@ package ch.hsr.isf.serepo.client.webapp.view.seitems;
 
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -37,7 +38,7 @@ public class CommitInfoComponent extends CustomComponent {
   
   private void createLayout() {
     layout.setSpacing(true);
-
+    layout.setMargin(new MarginInfo(false, false, true, false));
     layout.addComponent(createActionButton("Repository:", FontAwesome.DATABASE, false, new ClickListener() {
       
       @Override
