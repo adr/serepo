@@ -19,7 +19,6 @@ import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.RelationsContaine
 import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.seitem.SeItemTreeContainer;
 import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.seitem.SeItemTreeItem;
 import ch.hsr.isf.serepo.data.restinterface.common.Link;
-import ch.hsr.isf.serepo.data.restinterface.seitem.Relation;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
 
 public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
