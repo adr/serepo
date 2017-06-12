@@ -27,6 +27,7 @@ public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
 
   private SeItemsPresenter presenter;
 
+  private final CommitInfoComponent commitInfo = new CommitInfoComponent();
   private final SeItemTreeContainer seItemsContainer = new SeItemTreeContainer();
   private final ContentContainer contentContainer = new ContentContainer();
   private final MetadataContainer metadataContainer = new MetadataContainer();
@@ -36,6 +37,8 @@ public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
 
     setSizeFull();
 
+    addComponent(commitInfo);
+    
     seItemsContainer.setCaption("SE-Items");
     seItemsContainer.setListener(new SeItemTreeContainer.Listener() {
 
@@ -99,9 +102,12 @@ public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
       String[] parameters = event.getParameters()
                                  .split("/");
       if (parameters.length >= 2) {
-        presenter.load(parameters[0], parameters[1]);
-        String title = String.format("SE-Items in repository '%s' in commit '%s'", parameters[0], parameters[1]);
-        AppEventBus.post(new AppEvent.TitleChangeEvent(title));
+        String repository = parameters[0];
+        String commitId = parameters[1];
+        presenter.load(repository, commitId);
+        AppEventBus.post(new AppEvent.TitleChangeEvent("SE-Items"));
+        commitInfo.setRepository(repository);
+        commitInfo.setCommitId(commitId);
       } else {
         Notification.show("Not enough parameters to present the SE-Items.", Type.ERROR_MESSAGE);
       }
