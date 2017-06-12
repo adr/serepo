@@ -30,8 +30,6 @@ public class MainView extends VerticalLayout {
     setMargin(true);
     setSpacing(true);
 
-    AppEventBus.register(this);
-
     lblTitle.addStyleName(ValoTheme.LABEL_H2);
     lblTitle.addStyleName(ValoTheme.LABEL_COLORED);
     MenuBar menuBar = createMenuBar();
@@ -52,6 +50,19 @@ public class MainView extends VerticalLayout {
     setExpandRatio(content, 1);
 
     new AppNavigator(content);
+    
+  }
+
+  @Override
+  public void attach() {
+    super.attach();
+    AppEventBus.register(this);
+  }
+
+  @Override
+  public void detach() {
+    AppEventBus.unregister(this);
+    super.detach();
   }
 
   @Subscribe
