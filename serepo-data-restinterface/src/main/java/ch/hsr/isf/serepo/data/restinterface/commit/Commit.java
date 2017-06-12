@@ -25,6 +25,8 @@ public class Commit {
   @AtomId
   private URI id;
 
+  private String commitId;
+  
   @AtomUpdated
   private Date when;
 
@@ -50,6 +52,14 @@ public class Commit {
 
   public void setId(URI id) {
     this.id = id;
+  }
+
+  public String getCommitId() {
+    return commitId;
+  }
+
+  public void setCommitId(String commitId) {
+    this.commitId = commitId;
   }
 
   public Date getWhen() {

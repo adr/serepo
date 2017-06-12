@@ -4,12 +4,19 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.base.Optional;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinSession;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.Table.ColumnGenerator;
+import com.vaadin.ui.themes.ValoTheme;
 
 import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
@@ -28,8 +35,9 @@ public class CommitContainer extends CustomComponent {
     table = new Table(null, container = new BeanItemContainer<>(Commit.class));
     table.setSelectable(true);
     table.setSizeFull();
-    table.setVisibleColumns("shortMessage", "author", "when"); // TODO show commitId?
-    table.setColumnHeaders("Description", "Author", "Date");
+    table.setVisibleColumns("shortMessage", "author", "when", "commitId");
+    table.setColumnHeaders("Description", "Author", "Date", "CommitId");
+    table.setColumnExpandRatio("shortMessage", 1f);
     table.setConverter("author", new UserConverter());
     table.setCaptionAsHtml(true);
     table.setNullSelectionAllowed(false);
@@ -43,6 +51,17 @@ public class CommitContainer extends CustomComponent {
         if (event.isDoubleClick()) {
           AppEventBus.post(new AppEvent.ItemDoubleClickevent<Commit>(container.getItem(table.getValue()).getBean()));
         }
+      }
+    });
+    table.addGeneratedColumn("shortMessage", new ColumnGenerator() {
+      private static final long serialVersionUID = -6061480496233423212L;
+
+      @Override
+      public Object generateCell(Table source, Object itemId, Object columnId) {
+        Commit commit = (Commit) itemId;
+        Label label = new Label(source.getItem(itemId).getItemProperty(columnId));
+        label.setDescription(commit.getFullMessage());
+        return label;
       }
     });
   
