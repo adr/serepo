@@ -53,14 +53,15 @@ public class MetadataContainer extends CustomComponent {
 				container.setParent(itemId, parentId);
 				treeTable.setCollapsed(parentId, false);
 			}
-			
-			if (Map.class.isAssignableFrom(entry.getValue().getClass())) {
-				fill(itemId, (Map) entry.getValue());
-			} else if (Collection.class.isAssignableFrom(entry.getValue().getClass())) {
-				fill(itemId, (Collection) entry.getValue());
-			} else {
-				item.getItemProperty("value").setValue(entry.getValue().toString());
-				container.setChildrenAllowed(itemId, false);
+			if (entry.getValue() != null) {
+    			if (Map.class.isAssignableFrom(entry.getValue().getClass())) {
+    				fill(itemId, (Map) entry.getValue());
+    			} else if (Collection.class.isAssignableFrom(entry.getValue().getClass())) {
+    				fill(itemId, (Collection) entry.getValue());
+    			} else {
+    				item.getItemProperty("value").setValue(entry.getValue().toString());
+    				container.setChildrenAllowed(itemId, false);
+    			}
 			}
 		}
 		
