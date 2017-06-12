@@ -207,6 +207,8 @@ public class SeItemTreeContainer extends CustomComponent {
 
   @Subscribe
   public void selectSeItem(AppEvent.SelectSeItemInTree event) {
+    container.removeAllContainerFilters();
+    seItemFilter.setValue("");
     for (Object itemId : container.getItemIds()) {
       if (((TreeItem) itemId).getId().toString().equals(event.getUriOfSeItem())) {
         tree.select(itemId);
