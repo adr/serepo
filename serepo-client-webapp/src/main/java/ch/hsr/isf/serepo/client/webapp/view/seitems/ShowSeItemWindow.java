@@ -19,28 +19,23 @@ public class ShowSeItemWindow extends Window {
   private static final long serialVersionUID = 250287259763872613L;
   
   private TextArea seItemUri = new TextArea("URI of SE-Item");
-  
-  private TabSheet tabSheet = new TabSheet();
-  private ContentContainer contentContainer = new ContentContainer();
-  private MetadataContainer metadataContainer = new MetadataContainer();
-  private RelationsContainer relationsContainer = new RelationsContainer();
+  private SeItemComponent seItemComponent = new SeItemComponent();
+
 
   public ShowSeItemWindow(String uriOfSeItem) {
 
     configureWindow();
     
-    configureTabSheet();
-    addTabs();
     configureTextArea(uriOfSeItem);
     
-    VerticalLayout vlContent = new VerticalLayout(tabSheet, seItemUri);
+    VerticalLayout vlContent = new VerticalLayout(seItemComponent, seItemUri);
     vlContent.setSizeFull();
     vlContent.setSpacing(true);
     vlContent.setMargin(true);
-    vlContent.setExpandRatio(tabSheet, 1);
+    vlContent.setExpandRatio(seItemComponent, 1);
     setContent(vlContent);
     
-    loadSeItemData(uriOfSeItem);
+    seItemComponent.setSeItem(uriOfSeItem);
     open();
 
   }
@@ -57,23 +52,6 @@ public class ShowSeItemWindow extends Window {
         ((TextArea) event.getComponent()).selectAll();
       }
     });
-  }
-  
-  private void loadSeItemData(String seItemUrl) {
-    contentContainer.setContent(seItemUrl);
-    metadataContainer.setMetatadata(SeItemDataLoader.loadMetadata(seItemUrl));
-    relationsContainer.setRelations(SeItemDataLoader.loadRelations(seItemUrl));
-  }
-
-  private void configureTabSheet() {
-    tabSheet.setSizeFull();
-    tabSheet.addStyleName(ValoTheme.TABSHEET_ICONS_ON_TOP);
-  }
-
-  private void addTabs() {
-    tabSheet.addTab(contentContainer, "Content", contentContainer.getIcon());
-    tabSheet.addTab(metadataContainer, "Metadata", metadataContainer.getIcon());
-    tabSheet.addTab(relationsContainer, "Relations", relationsContainer.getIcon());
   }
 
   private void open() {
