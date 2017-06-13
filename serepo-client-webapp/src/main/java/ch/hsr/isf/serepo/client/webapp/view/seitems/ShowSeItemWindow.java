@@ -1,18 +1,15 @@
 package ch.hsr.isf.serepo.client.webapp.view.seitems;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
-import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
-import com.vaadin.ui.themes.ValoTheme;
 
 import ch.hsr.isf.serepo.client.webapp.MyUI;
-import ch.hsr.isf.serepo.client.webapp.services.SeItemDataLoader;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.ContentContainer;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.MetadataContainer;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.RelationsContainer;
+import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
+import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
 
 public class ShowSeItemWindow extends Window {
 
@@ -40,6 +37,11 @@ public class ShowSeItemWindow extends Window {
 
   }
 
+  @Subscribe
+  private void closeWindowOnSeItemSelectEvent(AppEvent.SelectSeItemInTree event) {
+    close();
+  }
+  
   private void configureTextArea(String uri) {
     seItemUri.setWidth("100%");
     seItemUri.setHeight(5, Unit.EM);
@@ -66,6 +68,18 @@ public class ShowSeItemWindow extends Window {
     center();
     setModal(true);
     setClosable(true);
+  }
+  
+  @Override
+  public void attach() {
+    super.attach();
+    AppEventBus.register(this);
+  }
+  
+  @Override
+  public void detach() {
+    AppEventBus.unregister(this);
+    super.detach();
   }
 
 }
