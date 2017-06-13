@@ -79,7 +79,7 @@ public class CommitInfoComponent extends CustomComponent {
       }
     }));
     layout.addComponent(lblRepository);
-    layout.addComponent(createActionButton("Commit:", FontAwesome.CODE_FORK, true, new ClickListener() {
+    layout.addComponent(createActionButton("Commit:", FontAwesome.HISTORY, true, new ClickListener() {
       
       @Override
       public void buttonClick(ClickEvent event) {

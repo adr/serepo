@@ -13,7 +13,7 @@ import ch.hsr.isf.serepo.client.webapp.view.seitems.SeItemsView;
 public enum AppViewType {
 //	DASHBOARD("dashboard", DashboardView.class, FontAwesome.HOME, true),
 	REPOSITORIES("repositories", RepositoriesView.class, FontAwesome.DATABASE, false), 
-	COMMITS("commits", CommitsView.class, FontAwesome.PENCIL_SQUARE_O, false), 
+	COMMITS("commits", CommitsView.class, FontAwesome.HISTORY, false), 
 	SEITEMS("seitems", SeItemsView.class, FontAwesome.SITEMAP, false),
 	SEARCH("search", SearchView.class, FontAwesome.SEARCH, false),
 	CONSISTENCY("consistency", RelationConsistencyView.class, FontAwesome.SEARCH, false);

@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.TreeTable;
@@ -21,6 +22,7 @@ public class MetadataContainer extends CustomComponent {
 	public MetadataContainer() {
 		
 		setSizeFull();
+		setIcon(FontAwesome.TAGS);
 		
 		treeTable = new TreeTable(null, container = new HierarchicalContainer());
 		treeTable.setSizeFull();

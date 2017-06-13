@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -29,6 +30,7 @@ public class RelationsContainer extends CustomComponent {
   public RelationsContainer() {
 
     setSizeFull();
+    setIcon(FontAwesome.SHARE_ALT);
 
     table = new Table(null, container = new BeanItemContainer<>(Link.class));
     table.addStyleName(ValoTheme.TABLE_SMALL);

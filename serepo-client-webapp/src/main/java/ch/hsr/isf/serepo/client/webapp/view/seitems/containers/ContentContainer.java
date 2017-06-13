@@ -17,6 +17,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.FileDownloader;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -39,6 +40,7 @@ public class ContentContainer extends CustomComponent {
 
 	public ContentContainer() {
 		setSizeFull();
+		setIcon(FontAwesome.FILE_TEXT_O);
 		panel = new Panel();
 		panel.setSizeFull();
 		setCompositionRoot(panel);

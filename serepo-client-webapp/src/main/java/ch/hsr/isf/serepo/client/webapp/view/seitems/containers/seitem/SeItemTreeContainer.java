@@ -57,6 +57,7 @@ public class SeItemTreeContainer extends CustomComponent {
   public SeItemTreeContainer() {
 
     setSizeFull();
+    setIcon(FontAwesome.SITEMAP);
     addContainerProperties();
     configureFilter();
     tree = createTree();
