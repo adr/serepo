@@ -22,6 +22,7 @@ public class MetadataContainer extends CustomComponent {
 	public MetadataContainer() {
 		
 		setSizeFull();
+		setCaption("Metadata");
 		setIcon(FontAwesome.TAGS);
 		
 		treeTable = new TreeTable(null, container = new HierarchicalContainer());

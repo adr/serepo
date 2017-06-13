@@ -40,6 +40,7 @@ public class ContentContainer extends CustomComponent {
 
 	public ContentContainer() {
 		setSizeFull();
+		setCaption("Content");
 		setIcon(FontAwesome.FILE_TEXT_O);
 		panel = new Panel();
 		panel.setSizeFull();

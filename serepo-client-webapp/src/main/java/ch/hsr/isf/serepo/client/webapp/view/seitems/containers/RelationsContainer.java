@@ -31,6 +31,7 @@ public class RelationsContainer extends CustomComponent {
   public RelationsContainer() {
 
     setSizeFull();
+    setCaption("Relations");
     setIcon(FontAwesome.SHARE_ALT);
 
     table = new Table(null, container = new BeanItemContainer<>(Link.class));
