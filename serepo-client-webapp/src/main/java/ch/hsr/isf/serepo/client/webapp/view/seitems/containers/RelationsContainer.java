@@ -45,12 +45,12 @@ public class RelationsContainer extends CustomComponent {
       public Object generateCell(Table source, Object itemId, Object columnId) {
         final Link link = (Link) itemId;
         
-        Button btnShowContent = createActionButton("show content", new ClickListener() {
+        Button btnShowSeItem = createActionButton("show SE-Item", new ClickListener() {
           private static final long serialVersionUID = 3560526349123313597L;
 
           @Override
           public void buttonClick(ClickEvent event) {
-            new RelationTargetContentBrowser(link.getTitle(), link.getHref());
+            new ShowSeItemWindow(link.getHref());
           }
         });
         Button btnJumpToSeItem = createActionButton("jump to SE-Item", new ClickListener() {
@@ -62,7 +62,7 @@ public class RelationsContainer extends CustomComponent {
           }
         });
         
-        HorizontalLayout hlActionButtons = new HorizontalLayout(btnShowContent, btnJumpToSeItem);
+        HorizontalLayout hlActionButtons = new HorizontalLayout(btnShowSeItem, btnJumpToSeItem);
         hlActionButtons.setSpacing(true);
         return hlActionButtons;
       }
