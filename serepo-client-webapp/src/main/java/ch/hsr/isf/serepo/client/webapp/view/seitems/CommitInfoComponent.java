@@ -53,6 +53,7 @@ public class CommitInfoComponent extends CustomComponent {
   }
   
   private void createLayout() {
+    cmbxCommits.setWidth("600px");
     cmbxCommits.addStyleName(ValoTheme.COMBOBOX_SMALL);
     cmbxCommits.addStyleName(ValoTheme.COMBOBOX_BORDERLESS);
     cmbxCommits.setScrollToSelectedItem(true);
@@ -78,7 +79,7 @@ public class CommitInfoComponent extends CustomComponent {
       }
     }));
     layout.addComponent(lblRepository);
-    layout.addComponent(createActionButton("Commit-ID:", FontAwesome.CODE_FORK, true, new ClickListener() {
+    layout.addComponent(createActionButton("Commit:", FontAwesome.CODE_FORK, true, new ClickListener() {
       
       @Override
       public void buttonClick(ClickEvent event) {
@@ -112,8 +113,7 @@ public class CommitInfoComponent extends CustomComponent {
       cmbxCommits.removeAllItems();
       for (Commit commit : commits) {
         cmbxCommits.addItem(commit.getCommitId());
-        String commitIdShort = commit.getCommitId().substring(0, 6);
-        cmbxCommits.setItemCaption(commit.getCommitId(), String.format("%s - %s", commitIdShort, commit.getShortMessage()));
+        cmbxCommits.setItemCaption(commit.getCommitId(), String.format("%s [%s]", commit.getShortMessage(), commit.getCommitId()));
       }
     } finally {
       cmbxCommitVclEnabled = true;
