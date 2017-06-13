@@ -18,6 +18,7 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
+import ch.hsr.isf.serepo.client.webapp.view.seitems.ShowSeItemWindow;
 import ch.hsr.isf.serepo.data.restinterface.common.Link;
 
 public class RelationsContainer extends CustomComponent {

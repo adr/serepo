@@ -1,4 +1,4 @@
-package ch.hsr.isf.serepo.client.webapp.view.seitems.containers;
+package ch.hsr.isf.serepo.client.webapp.view.seitems;
 
 import com.vaadin.event.FieldEvents.FocusEvent;
 import com.vaadin.event.FieldEvents.FocusListener;
@@ -10,6 +10,9 @@ import com.vaadin.ui.themes.ValoTheme;
 
 import ch.hsr.isf.serepo.client.webapp.MyUI;
 import ch.hsr.isf.serepo.client.webapp.services.SeItemDataLoader;
+import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.ContentContainer;
+import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.MetadataContainer;
+import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.RelationsContainer;
 
 public class ShowSeItemWindow extends Window {
 
