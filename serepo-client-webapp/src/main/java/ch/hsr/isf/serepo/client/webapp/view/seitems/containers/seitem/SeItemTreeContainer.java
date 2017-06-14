@@ -88,6 +88,7 @@ public class SeItemTreeContainer extends CustomComponent {
 
     setCompositionRoot(vlRootPanel);
 
+    chbxSeItemCanRepresentFolder.addStyleName("bottom-space-2");
     chbxSeItemCanRepresentFolder.addValueChangeListener(new ValueChangeListener() {
       private static final long serialVersionUID = 7940276200234018080L;
 
