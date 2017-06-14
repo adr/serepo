@@ -39,9 +39,9 @@ public class SeItemComponent extends CustomComponent {
   }
 
   private void addTabs() {
-    tabSheet.addTab(contentContainer, "Content", contentContainer.getIcon());
-    tabSheet.addTab(metadataContainer, "Metadata", metadataContainer.getIcon());
-    tabSheet.addTab(relationsContainer, "Relations", relationsContainer.getIcon());
+    tabSheet.addTab(contentContainer, contentContainer.getCaption(), contentContainer.getIcon());
+    tabSheet.addTab(metadataContainer, metadataContainer.getCaption(), metadataContainer.getIcon());
+    tabSheet.addTab(relationsContainer, relationsContainer.getCaption(), relationsContainer.getIcon());
   }
   
 }

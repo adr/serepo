@@ -18,7 +18,6 @@ public class ShowSeItemWindow extends Window {
   private TextArea seItemUri = new TextArea("URI of SE-Item");
   private SeItemComponent seItemComponent = new SeItemComponent();
 
-
   public ShowSeItemWindow(String uriOfSeItem) {
 
     configureWindow();

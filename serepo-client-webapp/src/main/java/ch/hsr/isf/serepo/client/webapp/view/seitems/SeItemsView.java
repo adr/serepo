@@ -1,8 +1,6 @@
 package ch.hsr.isf.serepo.client.webapp.view.seitems;
 
-import java.net.URL;
 import java.util.List;
-import java.util.Map;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
@@ -13,12 +11,8 @@ import com.vaadin.ui.VerticalLayout;
 
 import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.ContentContainer;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.MetadataContainer;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.RelationsContainer;
 import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.seitem.SeItemTreeContainer;
 import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.seitem.SeItemTreeItem;
-import ch.hsr.isf.serepo.data.restinterface.common.Link;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
 
 public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
@@ -29,9 +23,7 @@ public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
 
   private final CommitInfoComponent commitInfo = new CommitInfoComponent();
   private final SeItemTreeContainer seItemsContainer = new SeItemTreeContainer();
-  private final ContentContainer contentContainer = new ContentContainer();
-  private final MetadataContainer metadataContainer = new MetadataContainer();
-  private final RelationsContainer relationsContainer = new RelationsContainer();
+  private SeItemComponent seItemComponent = new SeItemComponent();
 
   public SeItemsView() {
 
@@ -48,18 +40,9 @@ public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
       }
     });
 
-    contentContainer.setCaption("Content");
-    metadataContainer.setCaption("Metadata");
-    relationsContainer.setCaption("Relations");
-    
-    VerticalLayout vlRight =
-        new VerticalLayout(contentContainer, metadataContainer, relationsContainer);
-    vlRight.setSizeFull();
-    vlRight.setSpacing(true);
-
-    HorizontalLayout hl = new HorizontalLayout(seItemsContainer, vlRight);
+    HorizontalLayout hl = new HorizontalLayout(seItemsContainer, seItemComponent);
     hl.setExpandRatio(seItemsContainer, 1);
-    hl.setExpandRatio(vlRight, 2);
+    hl.setExpandRatio(seItemComponent, 2);
     hl.setSizeFull();
     hl.setSpacing(true);
     addComponent(hl);
@@ -73,21 +56,8 @@ public class SeItemsView extends VerticalLayout implements View, ISeItemsView {
   }
 
   @Override
-  public void setSeItemContent(String seItemName, URL url) {
-    contentContainer.setCaption(String.format("Content of SE-Item '%s'", seItemName));
-    contentContainer.setContent(url);
-  }
-
-  @Override
-  public void setSeItemMetadata(String seItemName, Map<String, Object> metadata) {
-    metadataContainer.setCaption(String.format("Metadata of SE-Item '%s'", seItemName));
-    metadataContainer.setMetatadata(metadata);
-  }
-
-  @Override
-  public void setSeItemRelations(String seItemName, List<Link> relations) {
-    relationsContainer.setCaption(String.format("Relations for SE-Item '%s'", seItemName));
-    relationsContainer.setRelations(relations);
+  public void setSeItem(SeItem seItem) {
+    seItemComponent.setSeItem(seItem.getId().toString());
   }
 
   @Override
