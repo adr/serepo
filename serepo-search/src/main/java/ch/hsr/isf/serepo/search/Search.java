@@ -6,7 +6,7 @@ public interface Search {
     
     String REPOSITORY = "repository";
     String COMMITID = "commitid";
-    String SEITEM_PATH = "seitem_path";
+    String SEITEM_ID = "seitem_id";
     String SEITEM_NAME = "name";
     
   }
