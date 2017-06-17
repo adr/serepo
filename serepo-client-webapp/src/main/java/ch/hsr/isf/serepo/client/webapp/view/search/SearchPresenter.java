@@ -16,7 +16,6 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
 import ch.hsr.isf.serepo.client.webapp.model.Settings;
-import ch.hsr.isf.serepo.client.webapp.services.SeItemDataLoader;
 import ch.hsr.isf.serepo.client.webapp.view.search.SearchComponent.CommitInfo;
 import ch.hsr.isf.serepo.data.restinterface.commit.Commit;
 import ch.hsr.isf.serepo.data.restinterface.commit.CommitContainer;
@@ -78,23 +77,12 @@ public class SearchPresenter {
 
   }
 
-  public void search(String repository, String commitId, String searchIn, String query) {
+  public void search(String query) {
 
     Client client = ClientBuilder.newClient();
     WebTarget target = client.target(String.format("%s/search", Settings.getFromSession()
                                                                         .getSerepoUrl()));
-    if (!Strings.isNullOrEmpty(repository)) {
-      target = target.queryParam("repository", repository);
-    }
-    if (!Strings.isNullOrEmpty(commitId)) {
-      target = target.queryParam("commitId", commitId);
-    }
-    if (!Strings.isNullOrEmpty(searchIn)) {
-      target = target.queryParam("in", searchIn);
-    }
     target = target.queryParam("q", query);
-    System.out.println(target.getUri()
-                             .toString());
 
     Response response = null;
     try {
@@ -123,8 +111,7 @@ public class SearchPresenter {
   }
 
   public void searchResultClicked(SearchResult searchResult) {
-    view.setSeItemContent(searchResult.getSeItemUri());
-    view.setSeItemMetadata(SeItemDataLoader.loadMetadata(searchResult.getSeItemUri()));
+    view.setSeItem(searchResult.getSeItemUri());
   }
 
 }

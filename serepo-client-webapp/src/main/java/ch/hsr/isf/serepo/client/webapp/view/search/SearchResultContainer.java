@@ -5,6 +5,7 @@ import java.util.List;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
 
@@ -26,12 +27,14 @@ public class SearchResultContainer extends CustomComponent {
   public SearchResultContainer() {
 
     setSizeFull();
+    setIcon(FontAwesome.SEARCH);
+    setCaption("Search result");
 
     table = new Table(null, container = new BeanItemContainer<>(SearchResult.class));
     table.setSizeFull();
-    table.setVisibleColumns("repository", "commitId", "seItemUri");
-    table.setColumnHeaders("Repository", "CommitId", "SE-Item Uri");
-    table.setColumnExpandRatio("seItemUri", 1.0f);
+    table.setVisibleColumns("repository", "commitId", "seItemName");
+    table.setColumnHeaders("Repository", "CommitId", "SE-Item");
+    table.setColumnExpandRatio("seItemName", 1);
     table.setNullSelectionAllowed(false);
     table.setSelectable(true);
     table.addValueChangeListener(new ValueChangeListener() {
@@ -39,8 +42,8 @@ public class SearchResultContainer extends CustomComponent {
 
       @Override
       public void valueChange(ValueChangeEvent event) {
-        if (table.getValue() != null && listener != null) {
-          listener.searchResultClicked((SearchResult) table.getValue());
+        if (listener != null && event.getProperty().getValue() != null) {
+          listener.searchResultClicked((SearchResult) event.getProperty().getValue());
         }
       }
     });

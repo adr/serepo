@@ -28,7 +28,7 @@ public class SearchComponent extends CustomComponent {
 
   public interface Listener {
     
-    void searchClicked(String repository, String commitId, String searchIn, String query);
+    void searchClicked(String query);
 
     void repositoryChanged(String repository);
     
@@ -79,8 +79,7 @@ public class SearchComponent extends CustomComponent {
       @Override
       public void buttonClick(ClickEvent event) {
         if (listener != null) {
-          listener.searchClicked((String) cmbxRepository.getValue(), (String) cmbxCommit.getValue(),
-              (String) cmbxSearchIn.getValue(), txtfSearchQuery.getValue());
+          listener.searchClicked(txtfSearchQuery.getValue());
         }
       }
     });

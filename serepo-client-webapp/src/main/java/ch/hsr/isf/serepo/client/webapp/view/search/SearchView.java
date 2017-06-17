@@ -1,23 +1,16 @@
 package ch.hsr.isf.serepo.client.webapp.view.search;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.VerticalLayout;
 
 import ch.hsr.isf.serepo.client.webapp.event.AppEvent.TitleChangeEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
 import ch.hsr.isf.serepo.client.webapp.view.search.SearchComponent.CommitInfo;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.ContentContainer;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.MetadataContainer;
+import ch.hsr.isf.serepo.client.webapp.view.seitems.SeItemComponent;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchContainer;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchResult;
 
@@ -27,45 +20,18 @@ public class SearchView extends VerticalLayout implements View, ISearchView {
   private SearchPresenter presenter;
   private SearchComponent searchComponent = new SearchComponent();
 
-  private ContentContainer contentContainer;
-  private MetadataContainer metadataContainer;
+  private SearchResultContainer searchResultContainer = new SearchResultContainer();
+  private SeItemComponent seItemComponent = new SeItemComponent();
 
-  private SearchResultContainer searchResultContainer;
 
   public SearchView() {
 
     setSizeFull();
 
-    searchComponent.setListener(new SearchComponent.Listener() {
-
-      @Override
-      public void searchClicked(String repository, String commitId, String searchIn, String query) {
-        presenter.search(repository, commitId, searchIn, query);
-      }
-
-      @Override
-      public void repositoryChanged(String repository) {
-        presenter.loadCommitsForRepository(repository);
-      }
-    });
-
-    searchResultContainer = new SearchResultContainer();
-    searchResultContainer.setListener(new SearchResultContainer.Listener() {
-
-      @Override
-      public void searchResultClicked(SearchResult searchResult) {
-        presenter.searchResultClicked(searchResult);
-      }
-    });
+    setListeners();
     searchComponent.setSizeFull();
-    searchResultContainer.setCaption("Search result");
 
-    contentContainer = new ContentContainer();
-    contentContainer.setCaption("Content of selected SE-Item");
-    metadataContainer = new MetadataContainer();
-    metadataContainer.setCaption("Metadata of selected SE-Item");
-
-    VerticalLayout vlRight = new VerticalLayout(searchResultContainer, contentContainer, metadataContainer);
+    VerticalLayout vlRight = new VerticalLayout(searchResultContainer, seItemComponent);
     vlRight.setSizeFull();
     vlRight.setSpacing(true);
 
@@ -76,25 +42,37 @@ public class SearchView extends VerticalLayout implements View, ISearchView {
 
   }
 
+  private void setListeners() {
+    searchComponent.setListener(new SearchComponent.Listener() {
+
+      @Override
+      public void searchClicked(String query) {
+        presenter.search(query);
+      }
+
+      @Override
+      public void repositoryChanged(String repository) {
+        presenter.loadCommitsForRepository(repository);
+      }
+    });
+
+    searchResultContainer.setListener(new SearchResultContainer.Listener() {
+
+      @Override
+      public void searchResultClicked(SearchResult searchResult) {
+        presenter.searchResultClicked(searchResult);
+      }
+    });
+  }
+
   @Override
   public void setSearchResult(SearchContainer searchContainer) {
     searchResultContainer.setSearchResult(searchContainer.getSearchResult());
-    contentContainer.clearContent();
-    setSeItemMetadata(new TreeMap<String, Object>());
   }
-
+  
   @Override
-  public void setSeItemContent(String url) {
-    try {
-      contentContainer.setContent(new URL(url));
-    } catch (MalformedURLException e) {
-      Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
-    }
-  }
-
-  @Override
-  public void setSeItemMetadata(Map<String, Object> metadata) {
-    metadataContainer.setMetatadata(metadata);
+  public void setSeItem(String seItemUri) {
+    seItemComponent.setSeItem(seItemUri);
   }
 
   @Override
