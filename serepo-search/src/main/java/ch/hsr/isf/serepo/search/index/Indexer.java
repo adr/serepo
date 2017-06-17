@@ -43,7 +43,7 @@ public class Indexer implements AutoCloseable {
       // metadata
       streamUpdate.setParam(toParam(Search.Fields.REPOSITORY), repository);
       streamUpdate.setParam(toParam(Search.Fields.COMMITID), commitId);
-      streamUpdate.setParam(toParam(Search.Fields.SEITEM_PATH), seItemId);
+      streamUpdate.setParam(toParam(Search.Fields.SEITEM_ID), seItemId);
       streamUpdate.setParam(toParam(Search.Fields.SEITEM_NAME), seItemName);
       addMetadata(streamUpdate, metadata);
       // content
