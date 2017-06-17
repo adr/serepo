@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.hsr.isf.serepo.search.Search;
-import ch.hsr.isf.serepo.search.request.FilterQueries;
 
 public class DocumentDeleter implements AutoCloseable {
 
@@ -23,10 +22,8 @@ public class DocumentDeleter implements AutoCloseable {
 
   public void deleteForRepository(String repositoryName) throws DeleteException {
 
-    String deleteQuery = FilterQueries.create(Search.Fields.REPOSITORY, repositoryName);
-
     UpdateRequest updateRequest = new UpdateRequest();
-    updateRequest.deleteByQuery(deleteQuery);
+    updateRequest.deleteByQuery(Search.Fields.REPOSITORY + ":" + repositoryName);
 
     try {
       solr.request(updateRequest);
