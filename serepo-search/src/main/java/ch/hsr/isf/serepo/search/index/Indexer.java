@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
 
+import ch.hsr.isf.serepo.search.Search;
+
 public class Indexer implements AutoCloseable {
 
   private static final Logger logger = LoggerFactory.getLogger(Indexer.class);
@@ -39,10 +41,10 @@ public class Indexer implements AutoCloseable {
     ContentStreamUpdateRequest streamUpdate = new ContentStreamUpdateRequest("/update/extract");
     try {
       // metadata
-      streamUpdate.setParam(toParam("repository"), repository);
-      streamUpdate.setParam(toParam("commitid"), commitId);
-      streamUpdate.setParam(toParam("seitem_path"), seItemId);
-      streamUpdate.setParam(toParam("name"), seItemName);
+      streamUpdate.setParam(toParam(Search.Fields.REPOSITORY), repository);
+      streamUpdate.setParam(toParam(Search.Fields.COMMITID), commitId);
+      streamUpdate.setParam(toParam(Search.Fields.SEITEM_PATH), seItemId);
+      streamUpdate.setParam(toParam(Search.Fields.SEITEM_NAME), seItemName);
       addMetadata(streamUpdate, metadata);
       // content
       streamUpdate.addContentStream(new ContentStreamBase.ByteArrayStream(content, seItemId));
