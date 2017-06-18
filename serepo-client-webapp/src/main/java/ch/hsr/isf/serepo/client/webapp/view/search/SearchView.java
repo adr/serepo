@@ -1,94 +1,84 @@
 package ch.hsr.isf.serepo.client.webapp.view.search;
 
-import java.util.List;
-
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
+import ch.hsr.isf.serepo.client.webapp.AppNavigator;
+import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEvent.TitleChangeEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
-import ch.hsr.isf.serepo.client.webapp.view.search.SearchComponent.CommitInfo;
+import ch.hsr.isf.serepo.client.webapp.view.AppViewType;
+import ch.hsr.isf.serepo.client.webapp.view.search.SearchComponent.SearchResultListener;
 import ch.hsr.isf.serepo.client.webapp.view.seitems.SeItemComponent;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchContainer;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchResult;
 
-public class SearchView extends VerticalLayout implements View, ISearchView {
+public class SearchView extends VerticalLayout implements View {
   private static final long serialVersionUID = -1994290342312994302L;
 
-  private SearchPresenter presenter;
   private SearchComponent searchComponent = new SearchComponent();
 
   private SearchResultContainer searchResultContainer = new SearchResultContainer();
   private SeItemComponent seItemComponent = new SeItemComponent();
 
-
   public SearchView() {
 
     setSizeFull();
+    setSpacing(true);
 
-    setListeners();
-    searchComponent.setSizeFull();
+    searchComponent.setWidth("100%");
+    searchResultContainer.setWidth("100%");
+    searchResultContainer.setHeight(15, Unit.EM);
+    
+    Panel panel = new Panel(seItemComponent);
+    panel.setSizeFull();
+    panel.setCaption("SE-Item");
+    panel.setIcon(FontAwesome.FILE_O);
+    
+    
+    addComponent(searchComponent);
+    addComponent(searchResultContainer);
+    addComponent(panel);
+    setExpandRatio(panel, 1);
 
-    VerticalLayout vlRight = new VerticalLayout(searchResultContainer, seItemComponent);
-    vlRight.setSizeFull();
-    vlRight.setSpacing(true);
-
-    HorizontalLayout hl = new HorizontalLayout(searchComponent, vlRight);
-    hl.setSizeFull();
-    hl.setSpacing(true);
-    addComponent(hl);
-
-  }
-
-  private void setListeners() {
-    searchComponent.setListener(new SearchComponent.Listener() {
-
+    searchComponent.setListener(new SearchResultListener() {
+      
       @Override
-      public void searchClicked(String query) {
-        presenter.search(query);
-      }
-
-      @Override
-      public void repositoryChanged(String repository) {
-        presenter.loadCommitsForRepository(repository);
+      public void searchResult(SearchContainer searchContainer) {
+        searchResultContainer.setSearchResult(searchContainer.getSearchResult());
       }
     });
-
     searchResultContainer.setListener(new SearchResultContainer.Listener() {
-
+      
       @Override
       public void searchResultClicked(SearchResult searchResult) {
-        presenter.searchResultClicked(searchResult);
+        seItemComponent.setSeItem(searchResult.getSeItemUri());
       }
     });
-  }
 
-  @Override
-  public void setSearchResult(SearchContainer searchContainer) {
-    searchResultContainer.setSearchResult(searchContainer.getSearchResult());
   }
   
-  @Override
-  public void setSeItem(String seItemUri) {
-    seItemComponent.setSeItem(seItemUri);
+  @Subscribe
+  private void jumpToSeItem(AppEvent.SelectSeItemInTree selectSeItemInTree) {
+    SearchResult searchResult = searchResultContainer.getSelectedSearchResult();
+    AppNavigator.navigateTo(AppViewType.SEITEMS, searchResult.getRepository(), searchResult.getCommitId());
+    AppEventBus.post(selectSeItemInTree);
   }
 
   @Override
   public void attach() {
     super.attach();
-    presenter = new SearchPresenter(this);
+    AppEventBus.register(this);
   }
 
   @Override
-  public void setRepositories(List<String> repositories) {
-    searchComponent.setRepositories(repositories);
-  }
-
-  @Override
-  public void setCommits(List<CommitInfo> commits) {
-    searchComponent.setCommits(commits);
+  public void detach() {
+    AppEventBus.unregister(this);
+    super.detach();
   }
 
   @Override
