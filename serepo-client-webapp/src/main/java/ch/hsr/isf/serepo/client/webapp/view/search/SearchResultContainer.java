@@ -26,7 +26,7 @@ public class SearchResultContainer extends CustomComponent {
 
   public SearchResultContainer() {
 
-    setSizeFull();
+    setSizeUndefined();
     setIcon(FontAwesome.SEARCH);
     setCaption("Search result");
 
@@ -59,6 +59,10 @@ public class SearchResultContainer extends CustomComponent {
   public void setSearchResult(List<SearchResult> searchResults) {
     container.removeAllItems();
     container.addAll(searchResults);
+  }
+  
+  public SearchResult getSelectedSearchResult() {
+    return (SearchResult) table.getValue();
   }
 
 }
