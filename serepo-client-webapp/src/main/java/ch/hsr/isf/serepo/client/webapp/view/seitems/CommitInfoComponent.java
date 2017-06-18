@@ -2,13 +2,6 @@ package ch.hsr.isf.serepo.client.webapp.view.seitems;
 
 import java.util.LinkedList;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -22,18 +15,21 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
 
 import ch.hsr.isf.serepo.client.webapp.AppNavigator;
-import ch.hsr.isf.serepo.client.webapp.model.Settings;
+import ch.hsr.isf.serepo.client.webapp.services.SeRepoRestAPI;
 import ch.hsr.isf.serepo.client.webapp.view.AppViewType;
 import ch.hsr.isf.serepo.data.restinterface.commit.Commit;
 import ch.hsr.isf.serepo.data.restinterface.commit.CommitContainer;
+import ch.hsr.isf.serepo.data.restinterface.repository.Repository;
+import ch.hsr.isf.serepo.data.restinterface.repository.RepositoryContainer;
 
 public class CommitInfoComponent extends CustomComponent {
+  private static final long serialVersionUID = -9203631624167358267L;
 
   private HorizontalLayout layout = new HorizontalLayout() {
+    private static final long serialVersionUID = 2725271231172732137L;
 
     @Override
     public void addComponent(Component c) {
@@ -43,114 +39,152 @@ public class CommitInfoComponent extends CustomComponent {
     
   };
   
-  private Label lblRepository = new Label();
+  private ComboBox cmbxRepositories = new ComboBox();
   private ComboBox cmbxCommits = new ComboBox();
-  private boolean cmbxCommitVclEnabled = false;
+  private boolean cmbxValueChangeListenerEnabled = false;
   
   public CommitInfoComponent() {
     createLayout();
+    loadRepositories();
     setCompositionRoot(layout);
   }
   
-  private void createLayout() {
-    cmbxCommits.setWidth("600px");
-    cmbxCommits.addStyleName(ValoTheme.COMBOBOX_SMALL);
-    cmbxCommits.addStyleName(ValoTheme.COMBOBOX_BORDERLESS);
-    cmbxCommits.setScrollToSelectedItem(true);
-    cmbxCommits.setNullSelectionAllowed(false);
-    cmbxCommits.setDescription("Change commit");
-    cmbxCommits.addValueChangeListener(new ValueChangeListener() {
-      
-      @Override
-      public void valueChange(ValueChangeEvent event) {
-        if (cmbxCommitVclEnabled) {
-          AppNavigator.navigateTo(AppViewType.SEITEMS, lblRepository.getValue(), event.getProperty().getValue().toString());
-        }
+  private void loadRepositories() {
+    cmbxValueChangeListenerEnabled = false;
+    try {
+      cmbxRepositories.removeAllItems();
+      RepositoryContainer repositoryContainer = SeRepoRestAPI.getRepositories();
+      for (Repository repo : repositoryContainer.getRepositories()) {
+        cmbxRepositories.addItem(repo.getName());
       }
-    });
+    } finally {
+      cmbxValueChangeListenerEnabled = true;
+    }
+  }
 
+  private void createLayout() {
     layout.setSpacing(true);
     layout.setMargin(new MarginInfo(false, false, true, false));
-    layout.addComponent(createActionButton("Repository:", FontAwesome.DATABASE, false, new ClickListener() {
-      
+    configRepositoryGroup();
+    configCommitGroup();
+  }
+
+  private void configRepositoryGroup() {
+    Button btnRepository = createActionButton("Repository:", FontAwesome.DATABASE, new ClickListener() {
+      private static final long serialVersionUID = 47623509560655628L;
+
       @Override
       public void buttonClick(ClickEvent event) {
         AppNavigator.navigateTo(AppViewType.REPOSITORIES);
       }
-    }));
-    layout.addComponent(lblRepository);
-    layout.addComponent(createActionButton("Commit:", FontAwesome.HISTORY, true, new ClickListener() {
-      
+    });
+    btnRepository.setDescription("go to repositories");
+    layout.addComponent(btnRepository);
+    configRepositoriesCmbx();
+    layout.addComponent(cmbxRepositories);
+  }
+
+  private void configCommitGroup() {
+    Button btnCommit = createActionButton("Commit:", FontAwesome.HISTORY, new ClickListener() {
+      private static final long serialVersionUID = -5239748636964294986L;
+
       @Override
       public void buttonClick(ClickEvent event) {
-        AppNavigator.navigateTo(AppViewType.COMMITS, lblRepository.getValue());
+        AppNavigator.navigateTo(AppViewType.COMMITS, cmbxRepositories.getValue().toString());
       }
-    }));
+    });
+    btnCommit.addStyleName("left-space-30");
+    btnCommit.setDescription("go to commits");
+    layout.addComponent(btnCommit);
+    configCommitsCmbx();
     layout.addComponent(cmbxCommits);
   }
+
+  private void configRepositoriesCmbx() {
+    cmbxRepositories.setWidth("300px");
+    cmbxRepositories.setTextInputAllowed(false);
+    cmbxRepositories.addStyleName(ValoTheme.COMBOBOX_SMALL);
+    cmbxRepositories.setScrollToSelectedItem(true);
+    cmbxRepositories.setNullSelectionAllowed(false);
+    cmbxRepositories.setDescription("Change repository");
+    cmbxRepositories.addValueChangeListener(new ValueChangeListener() {
+      private static final long serialVersionUID = -7191898031310316511L;
+
+      @Override
+      public void valueChange(ValueChangeEvent event) {
+        if (cmbxValueChangeListenerEnabled) {
+          String repository = event.getProperty().getValue().toString();
+          String commitId = SeRepoRestAPI.getCommitsForRepository(repository).getCommits().get(0).getCommitId();
+          AppNavigator.navigateTo(AppViewType.SEITEMS, repository, commitId);
+        }
+      }
+    });
+  }
+
+  private void configCommitsCmbx() {
+    cmbxCommits.setWidth("700px");
+    cmbxCommits.setTextInputAllowed(false);
+    cmbxCommits.addStyleName(ValoTheme.COMBOBOX_SMALL);
+    cmbxCommits.setScrollToSelectedItem(true);
+    cmbxCommits.setNullSelectionAllowed(false);
+    cmbxCommits.setDescription("Change commit");
+    cmbxCommits.addValueChangeListener(new ValueChangeListener() {
+      private static final long serialVersionUID = 8134832018266747215L;
+
+      @Override
+      public void valueChange(ValueChangeEvent event) {
+        if (cmbxValueChangeListenerEnabled) {
+          AppNavigator.navigateTo(AppViewType.SEITEMS, cmbxRepositories.getValue().toString(), event.getProperty().getValue().toString());
+        }
+      }
+    });
+  }
   
-  private Button createActionButton(String caption, Resource icon, boolean addSpace, ClickListener action) {
+  private Button createActionButton(String caption, Resource icon, ClickListener action) {
     Button btn = new Button(caption, icon);
     btn.addClickListener(action);
     btn.addStyleName(ValoTheme.BUTTON_BORDERLESS);
     btn.addStyleName(ValoTheme.BUTTON_LINK);
     btn.addStyleName(ValoTheme.BUTTON_SMALL);
-    if (addSpace) {
-      btn.addStyleName("left-space-30");
-    }
     return btn;
   }
   
   public void setRepository(String repository) {
-    lblRepository.setValue(repository);
-    LinkedList<Commit> commits = loadCommits(repository);
-    addCommitsToComboBox(commits);
+    cmbxValueChangeListenerEnabled = false;
+    try {
+      if (!cmbxRepositories.containsId(repository)) {
+        cmbxRepositories.addItem(repository);
+      }
+      cmbxRepositories.select(repository);
+      LinkedList<Commit> commits = loadCommits(repository);
+      addCommitsToComboBox(commits);
+    } finally {
+      cmbxValueChangeListenerEnabled = true;
+    }
   }
 
   private void addCommitsToComboBox(LinkedList<Commit> commits) {
-    cmbxCommitVclEnabled = false;
-    try {
-      cmbxCommits.removeAllItems();
-      for (Commit commit : commits) {
-        cmbxCommits.addItem(commit.getCommitId());
-        cmbxCommits.setItemCaption(commit.getCommitId(), String.format("%s [%s]", commit.getShortMessage(), commit.getCommitId()));
-      }
-    } finally {
-      cmbxCommitVclEnabled = true;
+    cmbxCommits.removeAllItems();
+    for (Commit commit : commits) {
+      cmbxCommits.addItem(commit.getCommitId());
+      cmbxCommits.setItemCaption(commit.getCommitId(), String.format("%s [%s]", commit.getShortMessage(), commit.getCommitId()));
     }
   }
   
   private LinkedList<Commit> loadCommits(String repository) {
-    String uri = String.format("%s/repos/%s/commits", Settings.getFromSession().getSerepoUrl(), repository);
-    Client client = ClientBuilder.newClient();
-    WebTarget target = client.target(uri);
-    Response response = null;
-    try {
-      response = target.request()
-                       .accept(MediaType.APPLICATION_JSON_TYPE)
-                       .get();
-      if (response.getStatus() == Status.OK.getStatusCode()) {
-        CommitContainer commitContainer = response.readEntity(CommitContainer.class);
-        return new LinkedList<>(commitContainer.getCommits());
-      } else {
-        return new LinkedList<>();
-      }
-    } finally {
-      if (response != null) {
-        response.close();
-      }
-    }
+    CommitContainer commitsForRepository = SeRepoRestAPI.getCommitsForRepository(repository);
+    return new LinkedList<>(commitsForRepository.getCommits());
   }
 
   public void setCommitId(String commitId) {
-    if (cmbxCommits.isEmpty()) {
+    if (!cmbxCommits.containsId(commitId)) {
       cmbxCommits.addItem(commitId);
     }
-    cmbxCommitVclEnabled = false;
+    cmbxValueChangeListenerEnabled = false;
     try {
       cmbxCommits.select(commitId);
     } finally {
-      cmbxCommitVclEnabled = true;
+      cmbxValueChangeListenerEnabled = true;
     }
   }
   
