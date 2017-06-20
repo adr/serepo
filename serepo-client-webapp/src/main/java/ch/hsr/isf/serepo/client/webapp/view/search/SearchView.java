@@ -21,7 +21,6 @@ public class SearchView extends VerticalLayout implements View {
   private static final long serialVersionUID = -1994290342312994302L;
 
   private SearchComponent searchComponent = new SearchComponent();
-
   private SearchResultContainer searchResultContainer = new SearchResultContainer();
   private SeItemComponent seItemComponent = new SeItemComponent();
 
@@ -78,12 +77,20 @@ public class SearchView extends VerticalLayout implements View {
   @Override
   public void detach() {
     AppEventBus.unregister(this);
+    AppEventBus.post(new AppEvent.GlobalSearchField.Visible(true));
     super.detach();
   }
 
   @Override
   public void enter(ViewChangeEvent event) {
     AppEventBus.post(new TitleChangeEvent("Search"));
+    AppEventBus.post(new AppEvent.GlobalSearchField.Visible(false));
+    if (event.getParameters() != null) {
+      String query = event.getParameters();
+      if (!query.isEmpty()) {
+        searchComponent.executeQuery(query.substring(0, query.length() - 1)); // remove last /
+      }
+    }
   }
 
 }

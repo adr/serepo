@@ -27,6 +27,34 @@ public class AppEvent {
     }
 
   }
+  
+  public static class GlobalSearchField {
+    
+    public static class Visible {
+      private boolean visible;
+  
+      public Visible(boolean visible) {
+        this.visible = visible;
+      }
+  
+      public boolean isVisible() {
+        return visible;
+      }
+    }
+    
+    public static class SearchPrefix {
+      private String prefix;
+      
+      public SearchPrefix(String prefix) {
+        this.prefix = prefix;
+      }
+
+      public String getPrefix() {
+        return prefix;
+      }
+    }
+    
+  }
 
   public static class ItemDoubleClickevent<T> {
     private final T item;
