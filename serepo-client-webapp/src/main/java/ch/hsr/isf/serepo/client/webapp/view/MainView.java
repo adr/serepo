@@ -18,11 +18,14 @@ import ch.hsr.isf.serepo.client.webapp.AppNavigator;
 import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
 import ch.hsr.isf.serepo.client.webapp.model.User;
+import ch.hsr.isf.serepo.client.webapp.view.search.SearchField;
+import ch.hsr.isf.serepo.client.webapp.view.search.SearchField.SearchRequest;
 
 public class MainView extends VerticalLayout {
 
   private static final long serialVersionUID = -3799551812127454236L;
   private Label lblTitle = new Label();
+  private SearchField searchField;
 
   public MainView() {
 
@@ -32,12 +35,22 @@ public class MainView extends VerticalLayout {
 
     lblTitle.addStyleName(ValoTheme.LABEL_H2);
     lblTitle.addStyleName(ValoTheme.LABEL_COLORED);
+    
+    searchField = new SearchField();
+    searchField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+    
+    // due to a bug in vaadin we need to wrap the searchField into a vertical-layout.
+    // Otherwise the inline icon will be mispaced.
+    VerticalLayout vlSF = new VerticalLayout(searchField);
+    vlSF.setSizeUndefined();
+    
     MenuBar menuBar = createMenuBar();
 
-    HorizontalLayout hlHeader = new HorizontalLayout(lblTitle, menuBar);
+    HorizontalLayout hlHeader = new HorizontalLayout(lblTitle, vlSF, menuBar);
     addComponent(hlHeader);
     hlHeader.setExpandRatio(lblTitle, 1);
     hlHeader.setComponentAlignment(lblTitle, Alignment.MIDDLE_LEFT);
+    hlHeader.setComponentAlignment(vlSF, Alignment.MIDDLE_RIGHT);
     hlHeader.setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
     hlHeader.setSpacing(true);
     hlHeader.setWidth("100%");
@@ -52,22 +65,20 @@ public class MainView extends VerticalLayout {
     new AppNavigator(content);
     
   }
-
-  @Override
-  public void attach() {
-    super.attach();
-    AppEventBus.register(this);
-  }
-
-  @Override
-  public void detach() {
-    AppEventBus.unregister(this);
-    super.detach();
+  
+  @Subscribe
+  private void onSearchRequest(SearchRequest request) {
+    AppNavigator.navigateTo(AppViewType.SEARCH, request.getQuery());
   }
 
   @Subscribe
   public void changeTitle(AppEvent.TitleChangeEvent event) {
     lblTitle.setValue(event.getTitle());
+  }
+  
+  @Subscribe
+  public void setSearchFieldVisible(AppEvent.GlobalSearchField.Visible field) {
+    searchField.setVisible(field.isVisible());
   }
 
   private MenuBar createMenuBar() {
@@ -82,14 +93,6 @@ public class MainView extends VerticalLayout {
         AppNavigator.navigateTo(AppViewType.REPOSITORIES);
       }
     });
-    menuBar.addItem("Search", AppViewType.SEARCH.getIcon(), new Command() {
-      private static final long serialVersionUID = -399469459480685859L;
-
-      @Override
-      public void menuSelected(MenuItem selectedItem) {
-        AppNavigator.navigateTo(AppViewType.SEARCH);
-      }
-    });
     User user = (User) VaadinSession.getCurrent()
                                     .getAttribute(User.class.getName());
     MenuItem userMenuItem = menuBar.addItem(user.getUsername(), FontAwesome.USER, null);
@@ -102,6 +105,18 @@ public class MainView extends VerticalLayout {
       }
     });
     return menuBar;
+  }
+  
+  @Override
+  public void attach() {
+    super.attach();
+    AppEventBus.register(this);
+  }
+
+  @Override
+  public void detach() {
+    AppEventBus.unregister(this);
+    super.detach();
   }
 
 }
