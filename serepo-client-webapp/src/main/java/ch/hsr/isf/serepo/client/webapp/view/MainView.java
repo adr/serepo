@@ -26,6 +26,7 @@ public class MainView extends VerticalLayout {
   private static final long serialVersionUID = -3799551812127454236L;
   private Label lblTitle = new Label();
   private SearchField searchField;
+  private VerticalLayout vlSearchField;
 
   public MainView() {
 
@@ -37,20 +38,20 @@ public class MainView extends VerticalLayout {
     lblTitle.addStyleName(ValoTheme.LABEL_COLORED);
     
     searchField = new SearchField();
+    searchField.setClearAfterSearch(true);
     searchField.addStyleName(ValoTheme.TEXTFIELD_SMALL);
-    
     // due to a bug in vaadin we need to wrap the searchField into a vertical-layout.
     // Otherwise the inline icon will be mispaced.
-    VerticalLayout vlSF = new VerticalLayout(searchField);
-    vlSF.setSizeUndefined();
+    vlSearchField = new VerticalLayout(searchField);
+    vlSearchField.setSizeUndefined();
     
     MenuBar menuBar = createMenuBar();
 
-    HorizontalLayout hlHeader = new HorizontalLayout(lblTitle, vlSF, menuBar);
+    HorizontalLayout hlHeader = new HorizontalLayout(lblTitle, vlSearchField, menuBar);
     addComponent(hlHeader);
     hlHeader.setExpandRatio(lblTitle, 1);
     hlHeader.setComponentAlignment(lblTitle, Alignment.MIDDLE_LEFT);
-    hlHeader.setComponentAlignment(vlSF, Alignment.MIDDLE_RIGHT);
+    hlHeader.setComponentAlignment(vlSearchField, Alignment.MIDDLE_RIGHT);
     hlHeader.setComponentAlignment(menuBar, Alignment.MIDDLE_RIGHT);
     hlHeader.setSpacing(true);
     hlHeader.setWidth("100%");
@@ -78,9 +79,12 @@ public class MainView extends VerticalLayout {
   
   @Subscribe
   public void setSearchFieldVisible(AppEvent.GlobalSearchField.Visible field) {
-    searchField.setVisible(field.isVisible());
+    vlSearchField.removeComponent(searchField);
+    if (field.isVisible()) {
+     vlSearchField.addComponent(searchField); 
+    }
   }
-
+  
   private MenuBar createMenuBar() {
     MenuBar menuBar = new MenuBar();
     menuBar.addStyleName(ValoTheme.MENUBAR_BORDERLESS);
