@@ -19,6 +19,7 @@ import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
 import ch.hsr.isf.serepo.client.webapp.view.AppViewType;
 import ch.hsr.isf.serepo.client.webapp.view.MasterActionLayout;
+import ch.hsr.isf.serepo.client.webapp.view.search.SearchField;
 import ch.hsr.isf.serepo.data.restinterface.commit.Commit;
 
 public class CommitsView extends MasterActionLayout implements View, ICommitsView {
@@ -113,6 +114,7 @@ public class CommitsView extends MasterActionLayout implements View, ICommitsVie
   
   @Override
   public void detach() {
+    AppEventBus.post(new SearchField.QueryPrefix(""));
     AppEventBus.unregister(this);
     super.detach();
   }
@@ -131,6 +133,7 @@ public class CommitsView extends MasterActionLayout implements View, ICommitsVie
       commitContainer.selectLastSelectedCommit();
       String title = String.format("Commits in repository '%s'", repository);
       AppEventBus.post(new AppEvent.TitleChangeEvent(title));
+      AppEventBus.post(new SearchField.QueryPrefix("repository:" + repository + " AND "));
     }
   }
 
