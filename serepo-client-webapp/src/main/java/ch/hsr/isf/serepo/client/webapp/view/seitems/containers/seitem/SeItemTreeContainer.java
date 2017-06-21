@@ -20,7 +20,6 @@ import com.vaadin.event.ItemClickEvent.ItemClickListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Panel;
@@ -58,6 +57,7 @@ public class SeItemTreeContainer extends CustomComponent {
 
     setSizeFull();
     setIcon(FontAwesome.SITEMAP);
+    setCaption("SE-Items");
     addContainerProperties();
     configureFilter();
     tree = createTree();
@@ -68,27 +68,16 @@ public class SeItemTreeContainer extends CustomComponent {
 
   private void createComponent() {
     Panel panelForTree = new Panel(tree);
-    panelForTree.addStyleName(ValoTheme.PANEL_BORDERLESS);
     panelForTree.setSizeFull();
     
-    VerticalLayout vlFilterAndTree = new VerticalLayout(seItemFilter, panelForTree);
-    vlFilterAndTree.setSizeFull();
-    vlFilterAndTree.setSpacing(true);
-    vlFilterAndTree.setMargin(true);
-    vlFilterAndTree.setExpandRatio(panelForTree, 1f);
+    VerticalLayout vl = new VerticalLayout(seItemFilter, panelForTree, chbxSeItemCanRepresentFolder);
+    vl.setSizeFull();
+    vl.setSpacing(true);
+    vl.setMargin(true);
+    vl.setExpandRatio(panelForTree, 1f);
     
-    Panel panelForSeItems = new Panel(vlFilterAndTree);
-    panelForSeItems.setSizeFull();
+    setCompositionRoot(vl);
 
-    VerticalLayout vlRootPanel = new VerticalLayout(panelForSeItems, chbxSeItemCanRepresentFolder);
-    vlRootPanel.setSizeFull();
-    vlRootPanel.setSpacing(true);
-    vlRootPanel.setExpandRatio(panelForSeItems, 1f);
-    vlRootPanel.setComponentAlignment(chbxSeItemCanRepresentFolder, Alignment.BOTTOM_LEFT);
-
-    setCompositionRoot(vlRootPanel);
-
-    chbxSeItemCanRepresentFolder.addStyleName("bottom-space-2");
     chbxSeItemCanRepresentFolder.addValueChangeListener(new ValueChangeListener() {
       private static final long serialVersionUID = 7940276200234018080L;
 
