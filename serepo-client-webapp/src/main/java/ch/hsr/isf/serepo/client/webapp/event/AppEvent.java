@@ -42,18 +42,6 @@ public class AppEvent {
       }
     }
     
-    public static class SearchPrefix {
-      private String prefix;
-      
-      public SearchPrefix(String prefix) {
-        this.prefix = prefix;
-      }
-
-      public String getPrefix() {
-        return prefix;
-      }
-    }
-    
   }
 
   public static class ItemDoubleClickevent<T> {
