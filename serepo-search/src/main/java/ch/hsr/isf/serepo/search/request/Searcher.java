@@ -32,7 +32,7 @@ public class Searcher {
     try (HttpSolrClient solr = new HttpSolrClient(solrUrl)) {
 
       SolrQuery q = new SolrQuery();
-      q.setQuery(query);
+      q.setQuery(query); // ClientUtils.escapeQueryChars(query) does not work because semantic would change if " or : would be escaped!
       q.setRows(100000); // TODO
       q.setFields(Search.Fields.REPOSITORY, Search.Fields.COMMITID, Search.Fields.SEITEM_ID, Search.Fields.SEITEM_NAME);
 
