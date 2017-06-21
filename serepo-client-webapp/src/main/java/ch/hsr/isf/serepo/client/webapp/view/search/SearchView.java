@@ -88,7 +88,10 @@ public class SearchView extends VerticalLayout implements View {
     if (event.getParameters() != null) {
       String query = event.getParameters();
       if (!query.isEmpty()) {
-        searchComponent.executeQuery(query.substring(0, query.length() - 1)); // remove last /
+        if (query.endsWith("/")) {
+          query = query.substring(0, query.length() - 1);
+        }
+        searchComponent.executeQuery(query);
       }
     }
   }

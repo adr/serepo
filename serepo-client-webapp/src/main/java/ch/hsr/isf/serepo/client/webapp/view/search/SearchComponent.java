@@ -1,5 +1,6 @@
 package ch.hsr.isf.serepo.client.webapp.view.search;
 
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -11,21 +12,23 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PopupView;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
+import ch.hsr.isf.serepo.client.webapp.AppNavigator;
+import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
 import ch.hsr.isf.serepo.client.webapp.services.SeRepoRestAPI;
+import ch.hsr.isf.serepo.client.webapp.view.AppViewType;
+import ch.hsr.isf.serepo.client.webapp.view.search.SearchField.SearchRequest;
 import ch.hsr.isf.serepo.client.webapp.view.search.SearchRepoCommitFilterWindow.RepoCommitFilterListener;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchContainer;
-import elemental.events.KeyboardEvent.KeyCode;
 
 public class SearchComponent extends CustomComponent {
 
   private static final long serialVersionUID = 3479358377215890893L;
 
   private VerticalLayout vl;
-  private TextField searchQuery;
+  private SearchField searchField = new SearchField();
   private Button btnSearch;
   private PopupView searchHelp;
   private Button btnRepoCommitFilter;
@@ -44,9 +47,9 @@ public class SearchComponent extends CustomComponent {
     configSearchHelp();
     configRepoCommitFilterButton();
     
-    HorizontalLayout hlSearch = new HorizontalLayout(searchQuery, btnSearch);
+    HorizontalLayout hlSearch = new HorizontalLayout(searchField, btnSearch);
     hlSearch.setWidth("100%");
-    hlSearch.setExpandRatio(searchQuery, 1);
+    hlSearch.setExpandRatio(searchField, 1);
     hlSearch.setComponentAlignment(btnSearch, Alignment.BOTTOM_CENTER);
 
     HorizontalLayout hlFooter = new HorizontalLayout(searchHelp, btnRepoCommitFilter);
@@ -60,6 +63,11 @@ public class SearchComponent extends CustomComponent {
     
   }
   
+  public void executeQuery(String query) {
+    this.searchField.setValue(query);
+    listener.searchResult(SeRepoRestAPI.search(query));
+  }
+  
   public void setListener(SearchResultListener listener) {
     this.listener = listener;
   }
@@ -70,24 +78,19 @@ public class SearchComponent extends CustomComponent {
 
       @Override
       public void buttonClick(ClickEvent event) {
-        if (!searchQuery.isEmpty()) {
+        if (!searchField.isEmpty()) {
           if (listener != null) {
-            listener.searchResult(SeRepoRestAPI.search(searchQuery.getValue()));
+            AppNavigator.navigateTo(AppViewType.SEARCH, searchField.getValue());
           }
         }
       }
     });
     btnSearch.setIcon(FontAwesome.SEARCH);
-    btnSearch.setClickShortcut(KeyCode.ENTER);
   }
   
   private void configSearchField() {
-    searchQuery = new TextField();
-    searchQuery.setWidth("100%");
-    searchQuery.setIcon(FontAwesome.SEARCH);
-    searchQuery.addStyleName(ValoTheme.TEXTFIELD_INLINE_ICON);
-    searchQuery.setInputPrompt("Search for SE-Items...");
-    searchQuery.setNullRepresentation("");
+    searchField.setWidth("100%");
+    searchField.setClearAfterSearch(false);
   }
   
   private void configSearchHelp() {
@@ -135,11 +138,30 @@ public class SearchComponent extends CustomComponent {
           
           @Override
           public void filter(String query) {
-            searchQuery.setValue(query + searchQuery.getValue());
+            searchField.setValue(query + searchField.getValue());
           }
         });
       }
     });
+  }
+
+  @Subscribe
+  private void onSearchRequest(SearchRequest request) {
+    if (listener != null) {
+      listener.searchResult(SeRepoRestAPI.search(searchField.getValue()));
+    }
+  }
+  
+  @Override
+  public void attach() {
+    super.attach();
+    AppEventBus.register(this);
+  }
+
+  @Override
+  public void detach() {
+    AppEventBus.unregister(this);
+    super.detach();
   }
 
 }
