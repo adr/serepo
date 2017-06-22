@@ -1,6 +1,5 @@
 package ch.hsr.isf.serepo.client.webapp.view.search;
 
-import com.google.common.eventbus.Subscribe;
 import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -11,6 +10,8 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.PopupView;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -18,8 +19,8 @@ import com.vaadin.ui.themes.ValoTheme;
 import ch.hsr.isf.serepo.client.webapp.AppNavigator;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
 import ch.hsr.isf.serepo.client.webapp.services.SeRepoRestAPI;
+import ch.hsr.isf.serepo.client.webapp.services.SeRepoRestAPI.RestfulApiException;
 import ch.hsr.isf.serepo.client.webapp.view.AppViewType;
-import ch.hsr.isf.serepo.client.webapp.view.search.SearchField.SearchRequest;
 import ch.hsr.isf.serepo.client.webapp.view.search.SearchRepoCommitFilterWindow.RepoCommitFilterListener;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchContainer;
 
@@ -65,7 +66,14 @@ public class SearchComponent extends CustomComponent {
   
   public void executeQuery(String query) {
     this.searchField.setValue(query);
-    listener.searchResult(SeRepoRestAPI.search(query));
+    if (listener != null) {
+      try {
+        SearchContainer searchContainer = SeRepoRestAPI.search(query);
+        listener.searchResult(searchContainer);
+      } catch (RestfulApiException e) {
+        Notification.show("Search failed!", e.getMessage(), Type.ERROR_MESSAGE);
+      }
+    }
   }
   
   public void setListener(SearchResultListener listener) {
@@ -79,9 +87,7 @@ public class SearchComponent extends CustomComponent {
       @Override
       public void buttonClick(ClickEvent event) {
         if (!searchField.isEmpty()) {
-          if (listener != null) {
-            AppNavigator.navigateTo(AppViewType.SEARCH, searchField.getValue());
-          }
+          AppNavigator.navigateTo(AppViewType.SEARCH, searchField.getValue());
         }
       }
     });
@@ -145,13 +151,6 @@ public class SearchComponent extends CustomComponent {
     });
   }
 
-  @Subscribe
-  private void onSearchRequest(SearchRequest request) {
-    if (listener != null) {
-      listener.searchResult(SeRepoRestAPI.search(searchField.getValue()));
-    }
-  }
-  
   @Override
   public void attach() {
     super.attach();
