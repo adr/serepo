@@ -1,6 +1,5 @@
 package ch.hsr.isf.serepo.client.webapp.view.search;
 
-import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
@@ -100,36 +99,28 @@ public class SearchComponent extends CustomComponent {
   }
   
   private void configSearchHelp() {
-    Label helpText = createExampleLabel();
-    VerticalLayout vl = new VerticalLayout(helpText, createHelpLink());
-    vl.setSpacing(true);
-    vl.setSizeUndefined();
-    searchHelp = new PopupView(FontAwesome.INFO.getHtml() + " Search help", vl);
+    Label helpText = createHelpTextLabel();
+    searchHelp = new PopupView(FontAwesome.INFO.getHtml() + " Search help", helpText);
   }
 
-  private Label createExampleLabel() {
-    StringBuilder content = new StringBuilder();
-    content.append("Examples:")
-           .append("<br/>")
-           .append("Search for a specific word in the given scope: <b>unrestricted</b>")
-           .append("<br/>")
-           .append("Search SE-Items which have a metatag with a given property: <b>intellectual_property_rights:Unrestricted</b>")
-           .append("<br/>")
-           .append("Search SE-Items which have specific metatag properties: <b>intellectual_property_rights:Unrestricted AND option_state:Chosen</b>")
-           .append("<br/>")
-           .append("Search SE-Items which have not a specific metatag: <b>NOT option_state:Chosen</b>")
-           .append("<br/>")
-           .append("Notes: Metatags have to be in lowercase; spaces must be replaced by underscore (_). E.g \"Option State\" -> \"option_state\"");
-    return new Label(content.toString(), ContentMode.HTML);
-  }
-  
-  private Button createHelpLink() {
-    Button btn = new Button("Documentation of the underlying query processor");
-    btn.addStyleName(ValoTheme.BUTTON_LINK);
-    new BrowserWindowOpener(
-        "https://cwiki.apache.org/confluence/display/solr/The+Standard+Query+Parser#TheStandardQueryParser-SpecifyingFieldsinaQuerytotheStandardQueryParser").extend(
-            btn);
-    return btn;
+  private Label createHelpTextLabel() {
+    final String html =
+        "<html>\n" + 
+        "  <p><b>Search Query Help</b></p>\n" + 
+        "  <ul>\n" + 
+        "   <li>To search for a specific term just type the term. e.g.: <b>consistency</b></li>\n" + 
+        "   <li>To search for a specific term with spaces just type the term. E.g.: <b>&quot;term consistency&quot;</b></li>\n" + 
+        "   <li>A wildcard search can be done with <b>?</b> (matches a single character) or <b>*</b> (matches zero or more sequential characters).</li>\n" + 
+        "   <li>To search for a SE-Item with a specific name, use the field <i>name</i>. E.g.: <b>name:consistency</b></li>\n" + 
+        "   <li>To search/filter for metadata: <b>metadata_name_1:value1 AND metadata_name_2:value2</b><br/>\n" + 
+        "       Note: The metadata name has to be in lower case and spaces replaced by underscore (_) E.g.: &quot;Option State&quot; -> &quot;option_state&quot;</li>\n" + 
+        "   <li>To search/filter SE-Items which have not a specific metatag: <b>NOT option_state:Chosen</b>\n" + 
+        "   <li>To search/filter within a specific repository, use the repository field. E.g.: <b>repository:repo-name-1</b></li>\n" + 
+        "   <li>To search/filter within a specific commit within a repository: <b>repository:repo-name-1 AND commitid:76ba37*</b></li>\n" + 
+        " </ul>\n" + 
+        "  <a href=\"https://cwiki.apache.org/confluence/display/solr/The+Standard+Query+Parser#TheStandardQueryParser-SpecifyingFieldsinaQuerytotheStandardQueryParser\" target=\"_blank\">Documentation of the underlying query processor</a> \n" + 
+        "</html>";
+    return new Label(html, ContentMode.HTML);
   }
 
   private void configRepoCommitFilterButton() {
