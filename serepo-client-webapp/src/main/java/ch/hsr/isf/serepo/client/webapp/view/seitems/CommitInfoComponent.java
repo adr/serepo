@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
+import com.vaadin.jsclipboard.ClipboardButton;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.MarginInfo;
@@ -15,6 +16,8 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.themes.ValoTheme;
 
 import ch.hsr.isf.serepo.client.webapp.AppNavigator;
@@ -42,6 +45,7 @@ public class CommitInfoComponent extends CustomComponent {
   private ComboBox cmbxRepositories = new ComboBox();
   private ComboBox cmbxCommits = new ComboBox();
   private boolean cmbxValueChangeListenerEnabled = false;
+  private TextField tfCommitId = new TextField(null, "");
   
   public CommitInfoComponent() {
     createLayout();
@@ -98,6 +102,23 @@ public class CommitInfoComponent extends CustomComponent {
     layout.addComponent(btnCommit);
     configCommitsCmbx();
     layout.addComponent(cmbxCommits);
+
+    tfCommitId.setId("textfield-commitid");
+    tfCommitId.setWidth("350px");
+    tfCommitId.addStyleName(ValoTheme.TEXTFIELD_SMALL);
+    layout.addComponent(tfCommitId);
+
+    ClipboardButton clipboardButton = new ClipboardButton("textfield-commitid");
+    clipboardButton.addSuccessListener(new ClipboardButton.SuccessListener() {
+      private static final long serialVersionUID = -71258407509006880L;
+
+        @Override
+        public void onSuccess() {
+            Notification.show("CommitId was copied to clipboard");
+        }
+    });
+    clipboardButton.setClipboardButtonCaption("Copy");
+    layout.addComponent(clipboardButton);
   }
 
   private void configRepositoriesCmbx() {
@@ -186,6 +207,7 @@ public class CommitInfoComponent extends CustomComponent {
     } finally {
       cmbxValueChangeListenerEnabled = true;
     }
+    tfCommitId.setValue(commitId);
   }
   
 }
