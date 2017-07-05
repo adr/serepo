@@ -1,9 +1,16 @@
 package ch.hsr.isf.serepo.client.webapp;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.annotation.WebServlet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
@@ -31,6 +38,7 @@ import ch.hsr.isf.serepo.client.webapp.view.MainView;
 public class MyUI extends UI {
 
   private final AppEventBus appEventBus = new AppEventBus();
+  private static final Logger logger = LoggerFactory.getLogger(MyUI.class);
 
   @Override
   protected void init(VaadinRequest vaadinRequest) {
@@ -40,11 +48,15 @@ public class MyUI extends UI {
 
       @Override
       public void error(com.vaadin.server.ErrorEvent event) {
-        event.getThrowable()
-             .printStackTrace();
-        Notification.show(event.getThrowable()
-                               .getMessage(),
-            Type.ERROR_MESSAGE);
+        logger.error("An error occured.", event.getThrowable());
+        StringBuilder message = new StringBuilder();
+        List<Throwable> causes = new ArrayList<>();
+        causes.add(event.getThrowable());
+        causes.addAll(Throwables.getCausalChain(event.getThrowable()));
+        for (Throwable cause : causes) {
+          message.append(cause.getMessage()).append("\n");
+        }
+        Notification.show(message.toString(), Type.ERROR_MESSAGE);
       }
     });
     AppEventBus.register(this);
@@ -53,6 +65,9 @@ public class MyUI extends UI {
 //    VaadinSession.getCurrent().setAttribute(User.class.getName(), new User("WebUser", "user@serepo.com")); // TODO automatic login
     VaadinSession.getCurrent()
                  .setAttribute(Settings.class.getName(), Settings.read());
+    if (VaadinSession.getCurrent().getAttribute("table-selections") == null) {
+      VaadinSession.getCurrent().setAttribute("table-selections", new HashMap<Class<?>, Object>());
+    }
     updateContent();
   }
 

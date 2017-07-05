@@ -2,7 +2,6 @@ package ch.hsr.isf.serepo.rest.resources.search;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.DELETE;
@@ -21,10 +20,8 @@ import com.google.common.base.Strings;
 import ch.hsr.isf.serepo.commons.Uri;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchContainer;
 import ch.hsr.isf.serepo.rest.resources.Resource;
-import ch.hsr.isf.serepo.search.SearchConfig;
 import ch.hsr.isf.serepo.search.index.DeleteException;
 import ch.hsr.isf.serepo.search.index.DocumentDeleter;
-import ch.hsr.isf.serepo.search.request.FilterQueries;
 import ch.hsr.isf.serepo.search.request.SearchException;
 import ch.hsr.isf.serepo.search.request.SearchResult;
 import ch.hsr.isf.serepo.search.request.Searcher;
@@ -49,31 +46,12 @@ public class SearchResource extends Resource {
       , @ApiResponse(code = 500, message = "If the query cannot be understood or if something is wrong with the underlying search engine.")
   })
   @GET
-  public Response get(@QueryParam("repository") String repository,
-      @QueryParam("commitId") String commitId,
-      @ApiParam(value = "To specify the documenttype (metadata, content)", allowableValues = "metadata, content",
-          required = false) @QueryParam("in") String in,
-      @ApiParam(value = "Query", required = true) @QueryParam("q") String q)
+  public Response get(@ApiParam(value = "Query", required = true) @QueryParam("q") String q)
       throws URISyntaxException {
 
     Response response = null;
 
     Searcher searchRequest = new Searcher(getApp().getSolrUrl());
-
-    List<String> filterQueries = new ArrayList<>();
-
-    if (repository != null) {
-      filterQueries.add(
-          FilterQueries.create(SearchConfig.Fields.REPOSITORY, emptyToWildcard(repository)));
-    }
-    if (commitId != null) {
-      filterQueries.add(
-          FilterQueries.create(SearchConfig.Fields.COMMIT_ID, emptyToWildcard(commitId)));
-    }
-    if (in != null) {
-      filterQueries.add(
-          FilterQueries.create(SearchConfig.Fields.SEITEM_DOCUMENTTYPE, emptyToWildcard(in)));
-    }
 
     if (q == null) {
       return Response.status(Status.BAD_REQUEST)
@@ -83,17 +61,17 @@ public class SearchResource extends Resource {
     }
 
     try {
-      List<SearchResult> searchResults =
-          searchRequest.search(q, filterQueries.toArray(new String[filterQueries.size()]));
+      List<SearchResult> searchResults = searchRequest.search(q);
       SearchContainer searchContainer = new SearchContainer();
       for (SearchResult searchResult : searchResults) {
         URI uri = Uri.of(getUriInfo().getBaseUri(), "repos", searchResult.getRepository(),
-            "commits", searchResult.getCommitId(), "seitems", searchResult.getId());
+            "commits", searchResult.getCommitid(), "seitems", searchResult.getSeItemId());
         ch.hsr.isf.serepo.data.restinterface.search.SearchResult searchResultApi =
             new ch.hsr.isf.serepo.data.restinterface.search.SearchResult();
         searchResultApi.setRepository(searchResult.getRepository());
-        searchResultApi.setCommitId(searchResult.getCommitId());
+        searchResultApi.setCommitId(searchResult.getCommitid());
         searchResultApi.setSeItemUri(uri.toString());
+        searchResultApi.setSeItemName(searchResult.getSeItemName());
         searchContainer.getSearchResult()
                        .add(searchResultApi);
       }
@@ -149,13 +127,6 @@ public class SearchResource extends Resource {
 
     return response;
 
-  }
-
-  private String emptyToWildcard(String value) {
-    if (value.isEmpty()) {
-      return "*";
-    }
-    return value;
   }
 
 }

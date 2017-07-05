@@ -53,4 +53,14 @@ $v-layout-margin-left: 8px;
   padding: 0;
 }
 
+/* closeable error notification */
+.v-Notification.error {
+  @include valo-notification-error-style;
+  @include valo-notification-closable-style;
+}
+
+.left-space-30 {
+  padding-left: 30px;
+}
+
 }

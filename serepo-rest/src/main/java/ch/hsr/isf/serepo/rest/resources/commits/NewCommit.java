@@ -46,7 +46,6 @@ import ch.hsr.isf.serepo.git.repository.GitRepositoryBuilder;
 import ch.hsr.isf.serepo.markdown.Link;
 import ch.hsr.isf.serepo.markdown.MarkdownWriter;
 import ch.hsr.isf.serepo.markdown.yamlfrontmatter.Metadata;
-import ch.hsr.isf.serepo.search.index.IndexException;
 import ch.hsr.isf.serepo.search.index.Indexer;
 
 public class NewCommit {
@@ -134,18 +133,10 @@ public class NewCommit {
     try (Indexer indexer = new Indexer(solrUrl, repository, commitId)) {
       for (MetadataContentTuple tuple : metadataContentTuples) {
         String seItemId = Paths.get(tuple.seItem.getFolder(), tuple.seItem.getName()).toString();
-        try {
-          indexer.metadata(seItemId, tuple.seItem.getMetadata());
-        } catch (IndexException e) {
-          String message = String.format("An error occured while indexing metadata of SE-Item '%s' in repository '%s' commitId '%s'", seItemId, repository, commitId);
-          logger.error(message, e);
-        }
-        try (InputStream contentInputStream =
-            tuple.content.getBody(new GenericType<InputStream>(InputStream.class))) {
-          indexer.content(seItemId, ByteStreams.toByteArray(contentInputStream));
-        } catch (IOException | IndexException e) {
-          String message = String.format("An error occured while indexing the content of SE-Item '%s' in repository '%s' commitId '%s'", seItemId, repository, commitId);
-          logger.error(message, e);
+        try (InputStream contentInputStream = tuple.content.getBody(new GenericType<InputStream>(InputStream.class))) {
+          indexer.index(seItemId, tuple.seItem.getName(), tuple.seItem.getMetadata(), ByteStreams.toByteArray(contentInputStream));
+        } catch (Exception e) {
+          logger.error("An error occured while indexing SE-Item '" + seItemId + "'", e);
         }
       }
     }

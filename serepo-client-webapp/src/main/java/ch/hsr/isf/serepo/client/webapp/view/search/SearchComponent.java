@@ -1,180 +1,157 @@
 package ch.hsr.isf.serepo.client.webapp.view.search;
 
-import java.util.List;
-
-import com.vaadin.data.Property.ValueChangeEvent;
-import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.shared.ui.combobox.FilteringMode;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.PopupView;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
-import elemental.events.KeyboardEvent.KeyCode;
+import ch.hsr.isf.serepo.client.webapp.AppNavigator;
+import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
+import ch.hsr.isf.serepo.client.webapp.services.SeRepoRestAPI;
+import ch.hsr.isf.serepo.client.webapp.services.SeRepoRestAPI.RestfulApiException;
+import ch.hsr.isf.serepo.client.webapp.view.AppViewType;
+import ch.hsr.isf.serepo.client.webapp.view.search.SearchRepoCommitFilterWindow.RepoCommitFilterListener;
+import ch.hsr.isf.serepo.data.restinterface.search.SearchContainer;
 
 public class SearchComponent extends CustomComponent {
 
   private static final long serialVersionUID = 3479358377215890893L;
 
-  public interface Listener {
-    
-    void searchClicked(String repository, String commitId, String searchIn, String query);
-
-    void repositoryChanged(String repository);
-    
-  }
-
-  public static class CommitInfo {
-    private String id;
-    private String shortMessage;
-
-    public CommitInfo(String id, String shortMessage) {
-      this.id = id;
-      this.shortMessage = shortMessage;
-    }
-
-    public String getId() {
-      return id;
-    }
-
-    public String getShortMessage() {
-      return shortMessage;
-    }
-  }
-
   private VerticalLayout vl;
-  private TextField txtfSearchQuery;
-  private ComboBox cmbxRepository;
-  private ComboBox cmbxCommit;
-  private ComboBox cmbxSearchIn;
-
-  private Listener listener = null;
+  private SearchField searchField = new SearchField();
+  private Button btnSearch;
+  private PopupView searchHelp;
+  private Button btnRepoCommitFilter;
+  
+  public interface SearchResultListener {
+    void searchResult(SearchContainer searchContainer);
+  }
+  private SearchResultListener listener;
 
   public SearchComponent() {
 		
     setSizeUndefined();
-    vl = new VerticalLayout();
-    vl.setWidth("100%");
-    vl.setSpacing(true);
-    setCompositionRoot(vl);
 
-    txtfSearchQuery = new TextField("Search Query");
-    txtfSearchQuery.setWidth("100%");
-    txtfSearchQuery.setIcon(FontAwesome.SEARCH);
-    txtfSearchQuery.setInputPrompt("term or complex query with AND, OR, NOT");
+    configSearchField();
+    configSearchButton();
+    configSearchHelp();
+    configRepoCommitFilterButton();
     
-    Button btnSearch = new Button("Search", new ClickListener() {
+    HorizontalLayout hlSearch = new HorizontalLayout(searchField, btnSearch);
+    hlSearch.setWidth("100%");
+    hlSearch.setExpandRatio(searchField, 1);
+    hlSearch.setComponentAlignment(btnSearch, Alignment.BOTTOM_CENTER);
+
+    HorizontalLayout hlFooter = new HorizontalLayout(searchHelp, btnRepoCommitFilter);
+    hlFooter.setWidth("100%");
+    hlFooter.setComponentAlignment(searchHelp, Alignment.MIDDLE_LEFT);
+    hlFooter.setComponentAlignment(btnRepoCommitFilter, Alignment.MIDDLE_RIGHT);
+    
+    vl = new VerticalLayout(hlSearch, hlFooter);
+    vl.setWidth("100%");
+    setCompositionRoot(vl);
+    
+  }
+  
+  public void executeQuery(String query) {
+    this.searchField.setValue(query);
+    if (listener != null) {
+      try {
+        SearchContainer searchContainer = SeRepoRestAPI.search(query);
+        listener.searchResult(searchContainer);
+      } catch (RestfulApiException e) {
+        Notification.show("Search failed!", e.getMessage(), Type.ERROR_MESSAGE);
+      }
+    }
+  }
+  
+  public void setListener(SearchResultListener listener) {
+    this.listener = listener;
+  }
+
+  private void configSearchButton() {
+    btnSearch = new Button("Search", new ClickListener() {
       private static final long serialVersionUID = 6224557624748707379L;
 
       @Override
       public void buttonClick(ClickEvent event) {
-        if (listener != null) {
-          listener.searchClicked((String) cmbxRepository.getValue(), (String) cmbxCommit.getValue(),
-              (String) cmbxSearchIn.getValue(), txtfSearchQuery.getValue());
+        if (!searchField.isEmpty()) {
+          AppNavigator.navigateTo(AppViewType.SEARCH, searchField.getValue());
         }
       }
     });
     btnSearch.setIcon(FontAwesome.SEARCH);
-    btnSearch.setClickShortcut(KeyCode.ENTER);
-    
-    cmbxRepository = new ComboBox("Repository");
-    cmbxRepository.setWidth("100%");
-    cmbxRepository.setIcon(FontAwesome.DATABASE);
-    cmbxRepository.setInputPrompt("Restrict to repository");
-    cmbxRepository.setFilteringMode(FilteringMode.CONTAINS);
-    cmbxRepository.addValueChangeListener(new ValueChangeListener() {
-      private static final long serialVersionUID = -2796627300174190136L;
-
-      @Override
-      public void valueChange(ValueChangeEvent event) {
-        listener.repositoryChanged((String) event.getProperty()
-                                                 .getValue());
-      }
-    });
-
-    cmbxCommit = new ComboBox("Commit");
-    cmbxCommit.setWidth("100%");
-    cmbxCommit.setIcon(FontAwesome.PENCIL_SQUARE_O);
-    cmbxCommit.setInputPrompt("Restrict to commit");
-    cmbxCommit.setFilteringMode(FilteringMode.CONTAINS);
-
-    cmbxSearchIn = new ComboBox("Search...");
-    cmbxSearchIn.setWidth("100%");
-    cmbxSearchIn.setIcon(FontAwesome.LOCATION_ARROW);
-    cmbxSearchIn.setInputPrompt("everywhere");
-    cmbxSearchIn.addItems("metadata", "content");
-    cmbxSearchIn.setItemCaption("metadata", "only in metadata");
-    cmbxSearchIn.setItemCaption("content", "only in content");
-
-    HorizontalLayout hlSearch = new HorizontalLayout(txtfSearchQuery, btnSearch);
-    hlSearch.setWidth("100%");
-    hlSearch.setExpandRatio(txtfSearchQuery, 1.0f);
-    hlSearch.setComponentAlignment(btnSearch, Alignment.BOTTOM_CENTER);
-    
-    vl.addComponent(hlSearch);
-    vl.addComponent(createExampleLabel());
-    vl.addComponent(createHelpLink());
-    vl.addComponent(cmbxRepository);
-    vl.addComponent(cmbxCommit);
-    vl.addComponent(cmbxSearchIn);
-
-  }
-
-  private Label createExampleLabel() {
-    StringBuilder content = new StringBuilder();
-    content.append("Examples:")
-           .append("<br/>")
-           .append("Search for a specific word in the given scope: <b>unrestricted</b>")
-           .append("<br/>")
-           .append("Search SE-Items which have a metatag with a given property: <b>intellectual_property_rights:Unrestricted</b>")
-           .append("<br/>")
-           .append("Search SE-Items which have specific metatag properties: <b>intellectual_property_rights:Unrestricted AND option_state:Chosen</b>")
-           .append("<br/>")
-           .append("Search SE-Items which have not a specific metatag: <b>NOT option_state:Chosen</b>")
-           .append("<br/>")
-           .append("Notes: Metatags have to be in lowercase; spaces must be replaced by underscore (_). E.g \"Option State\" -> \"option_state\"");
-    return new Label(content.toString(), ContentMode.HTML);
   }
   
-  private Button createHelpLink() {
-    Button btn = new Button("Documentation of the underlying query processor");
-    btn.addStyleName(ValoTheme.BUTTON_LINK);
-    new BrowserWindowOpener(
-        "https://cwiki.apache.org/confluence/display/solr/The+Standard+Query+Parser#TheStandardQueryParser-SpecifyingFieldsinaQuerytotheStandardQueryParser").extend(
-            btn);
-    return btn;
+  private void configSearchField() {
+    searchField.setWidth("100%");
+    searchField.setClearAfterSearch(false);
+  }
+  
+  private void configSearchHelp() {
+    Label helpText = createHelpTextLabel();
+    searchHelp = new PopupView(FontAwesome.INFO.getHtml() + " Search help", helpText);
   }
 
-  public void setListener(Listener listener) {
-    this.listener = listener;
+  private Label createHelpTextLabel() {
+    final String html =
+        "<html>\n" + 
+        "  <p><b>Search Query Help</b></p>\n" + 
+        "  <ul>\n" + 
+        "   <li>To search for a specific term just type the term. e.g.: <b>consistency</b></li>\n" + 
+        "   <li>To search for a specific term with spaces just type the term. E.g.: <b>&quot;term consistency&quot;</b></li>\n" + 
+        "   <li>A wildcard search can be done with <b>?</b> (matches a single character) or <b>*</b> (matches zero or more sequential characters).</li>\n" + 
+        "   <li>To search for a SE-Item with a specific name, use the field <i>name</i>. E.g.: <b>name:consistency</b></li>\n" + 
+        "   <li>To search/filter for metadata: <b>metadata_name_1:value1 AND metadata_name_2:value2</b><br/>\n" + 
+        "       Note: The metadata name has to be in lower case and spaces replaced by underscore (_) E.g.: &quot;Option State&quot; -> &quot;option_state&quot;</li>\n" + 
+        "   <li>To search/filter SE-Items which have not a specific metatag: <b>NOT option_state:Chosen</b>\n" + 
+        "   <li>To search/filter within a specific repository, use the repository field. E.g.: <b>repository:repo-name-1</b></li>\n" + 
+        "   <li>To search/filter within a specific commit within a repository: <b>repository:repo-name-1 AND commitid:76ba37*</b></li>\n" + 
+        " </ul>\n" + 
+        "  <a href=\"https://cwiki.apache.org/confluence/display/solr/The+Standard+Query+Parser#TheStandardQueryParser-SpecifyingFieldsinaQuerytotheStandardQueryParser\" target=\"_blank\">Documentation of the underlying query processor</a> \n" + 
+        "</html>";
+    return new Label(html, ContentMode.HTML);
   }
 
-  public void setRepositories(List<String> repositories) {
-    cmbxRepository.removeAllItems();
-    cmbxRepository.setValue(null);
-    cmbxRepository.addItems(repositories);
+  private void configRepoCommitFilterButton() {
+    btnRepoCommitFilter = new Button("Filter...", FontAwesome.FILTER);
+    btnRepoCommitFilter.addStyleName(ValoTheme.BUTTON_LINK);
+    btnRepoCommitFilter.addClickListener(new ClickListener() {
+      private static final long serialVersionUID = 4939366171347961386L;
+
+      @Override
+      public void buttonClick(ClickEvent event) {
+        new SearchRepoCommitFilterWindow(new RepoCommitFilterListener() {
+          
+          @Override
+          public void filter(String query) {
+            searchField.setValue(query + searchField.getValue());
+          }
+        });
+      }
+    });
   }
 
-  public void setCommits(List<CommitInfo> commits) {
-    cmbxCommit.removeAllItems();
-    cmbxCommit.setValue(null);
-    for (CommitInfo commit : commits) {
-      cmbxCommit.addItem(commit.getId());
-      String shortCommitId = commit.getId()
-                                   .substring(0, 8);
-      String caption = String.format("%s - %s", shortCommitId, commit.getShortMessage());
-      cmbxCommit.setItemCaption(commit.getId(), caption);
-    }
+  @Override
+  public void attach() {
+    super.attach();
+    AppEventBus.register(this);
+  }
+
+  @Override
+  public void detach() {
+    AppEventBus.unregister(this);
+    super.detach();
   }
 
 }

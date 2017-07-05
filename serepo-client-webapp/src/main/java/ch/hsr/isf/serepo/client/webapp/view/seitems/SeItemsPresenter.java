@@ -1,10 +1,5 @@
 package ch.hsr.isf.serepo.client.webapp.view.seitems;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -16,8 +11,6 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
 
 import ch.hsr.isf.serepo.client.webapp.model.Settings;
-import ch.hsr.isf.serepo.client.webapp.services.SeItemDataLoader;
-import ch.hsr.isf.serepo.data.restinterface.common.Link;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItem;
 import ch.hsr.isf.serepo.data.restinterface.seitem.SeItemContainer;
 
@@ -61,24 +54,7 @@ public class SeItemsPresenter {
   }
 
   public void seItemClicked(SeItem seItem) {
-    try {
-      view.setSeItemContent(seItem.getName(), new URL(seItem.getContent()
-                                                            .getUrl()));
-      view.setSeItemMetadata(seItem.getName(), getMetadata(seItem));
-      view.setSeItemRelations(seItem.getName(), getRelations(seItem));
-    } catch (MalformedURLException e) {
-      Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
-    }
-  }
-
-  private Map<String, Object> getMetadata(SeItem seItem) {
-    return SeItemDataLoader.loadMetadata(seItem.getId()
-                                               .toString());
-  }
-
-  private List<Link> getRelations(SeItem seItem) {
-    return SeItemDataLoader.loadRelations(seItem.getId()
-                                                .toString());
+    view.setSeItem(seItem);
   }
 
 }

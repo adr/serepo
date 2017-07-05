@@ -13,8 +13,7 @@ import org.apache.solr.common.SolrDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.hsr.isf.serepo.search.SeItemDocumentType;
-import ch.hsr.isf.serepo.search.SearchConfig;
+import ch.hsr.isf.serepo.search.Search;
 
 public class Searcher {
 
@@ -26,25 +25,24 @@ public class Searcher {
     this.solrUrl = solrUrl;
   }
 
-  public List<SearchResult> search(String query, String...filterQueries) throws SearchException {
+  public List<SearchResult> search(String query) throws SearchException {
 
     List<SearchResult> searchResults = new ArrayList<>();
 
     try (HttpSolrClient solr = new HttpSolrClient(solrUrl)) {
 
       SolrQuery q = new SolrQuery();
-      q.setQuery(query);
+      q.setQuery(query); // ClientUtils.escapeQueryChars(query) does not work because semantic would change if " or : would be escaped!
       q.setRows(100000); // TODO
-      q.setFilterQueries(filterQueries);
-      q.setFields(SearchConfig.Fields.SEITEM_ID, SearchConfig.Fields.REPOSITORY, SearchConfig.Fields.COMMIT_ID, SearchConfig.Fields.SEITEM_DOCUMENTTYPE);
+      q.setFields(Search.Fields.REPOSITORY, Search.Fields.COMMITID, Search.Fields.SEITEM_ID, Search.Fields.SEITEM_NAME);
 
       QueryResponse queryResponse = solr.query(q);
       for (SolrDocument doc : queryResponse.getResults()) {
         SearchResult searchResult = new SearchResult();
-        searchResult.setId((String) doc.getFirstValue(SearchConfig.Fields.SEITEM_ID));
-        searchResult.setRepository((String) doc.getFirstValue(SearchConfig.Fields.REPOSITORY));
-        searchResult.setCommitId((String) doc.getFirstValue(SearchConfig.Fields.COMMIT_ID));
-        searchResult.setDocumentType(SeItemDocumentType.valueOf((String) doc.getFirstValue(SearchConfig.Fields.SEITEM_DOCUMENTTYPE)));
+        searchResult.setRepository((String) doc.getFirstValue(Search.Fields.REPOSITORY));
+        searchResult.setCommitid((String) doc.getFirstValue(Search.Fields.COMMITID));
+        searchResult.setSeItemId((String) doc.getFirstValue(Search.Fields.SEITEM_ID));
+        searchResult.setSeItemName((String) doc.getFirstValue(Search.Fields.SEITEM_NAME));
         searchResults.add(searchResult);
       }
 

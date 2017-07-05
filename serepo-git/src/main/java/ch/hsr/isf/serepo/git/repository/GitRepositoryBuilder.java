@@ -29,9 +29,8 @@ public class GitRepositoryBuilder {
   public static void create(File gitDir, String name, String description, GitAuthor author)
       throws IOException, GitCommandException {
 
-    name = name.trim();
-    if (name.contains(" ")) {
-      throw new GitCommandException("No spaces are allowed in repository name!");
+    if (!FileUtils.isValidRepositoryName(name)) {
+      throw new GitCommandException(String.format("Repository name '%s' is not allowed. Only a-zA-Z0-9- are allowed.", name));
     }
     
     File repositoryDir = Paths.get(gitDir.getAbsolutePath(), name + ".git")

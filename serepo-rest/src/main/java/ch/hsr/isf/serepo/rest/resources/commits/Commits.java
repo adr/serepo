@@ -59,6 +59,7 @@ public class Commits {
     Commit commit = new Commit();
     URI id = Uri.of(baseUri, "repos", repositoryName, "commits", commitLog.getCommitId());
     commit.setId(id);
+    commit.setCommitId(commitLog.getCommitId());
     commit.setWhen(commitLog.getWhen());
     commit.setShortMessage(commitLog.getShortMessage());
     commit.setFullMessage(commitLog.getFullMessage());

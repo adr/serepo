@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.util.HierarchicalContainer;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table.Align;
 import com.vaadin.ui.TreeTable;
@@ -21,6 +22,8 @@ public class MetadataContainer extends CustomComponent {
 	public MetadataContainer() {
 		
 		setSizeFull();
+		setCaption("Metadata");
+		setIcon(FontAwesome.TAGS);
 		
 		treeTable = new TreeTable(null, container = new HierarchicalContainer());
 		treeTable.setSizeFull();
@@ -53,14 +56,15 @@ public class MetadataContainer extends CustomComponent {
 				container.setParent(itemId, parentId);
 				treeTable.setCollapsed(parentId, false);
 			}
-			
-			if (Map.class.isAssignableFrom(entry.getValue().getClass())) {
-				fill(itemId, (Map) entry.getValue());
-			} else if (Collection.class.isAssignableFrom(entry.getValue().getClass())) {
-				fill(itemId, (Collection) entry.getValue());
-			} else {
-				item.getItemProperty("value").setValue(entry.getValue().toString());
-				container.setChildrenAllowed(itemId, false);
+			if (entry.getValue() != null) {
+    			if (Map.class.isAssignableFrom(entry.getValue().getClass())) {
+    				fill(itemId, (Map) entry.getValue());
+    			} else if (Collection.class.isAssignableFrom(entry.getValue().getClass())) {
+    				fill(itemId, (Collection) entry.getValue());
+    			} else {
+    				item.getItemProperty("value").setValue(entry.getValue().toString());
+    				container.setChildrenAllowed(itemId, false);
+    			}
 			}
 		}
 		

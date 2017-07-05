@@ -6,14 +6,19 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnGenerator;
 import com.vaadin.ui.themes.ValoTheme;
 
+import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
+import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
+import ch.hsr.isf.serepo.client.webapp.view.seitems.ShowSeItemWindow;
 import ch.hsr.isf.serepo.data.restinterface.common.Link;
 
 public class RelationsContainer extends CustomComponent {
@@ -26,6 +31,8 @@ public class RelationsContainer extends CustomComponent {
   public RelationsContainer() {
 
     setSizeFull();
+    setCaption("Relations");
+    setIcon(FontAwesome.SHARE_ALT);
 
     table = new Table(null, container = new BeanItemContainer<>(Link.class));
     table.addStyleName(ValoTheme.TABLE_SMALL);
@@ -39,21 +46,39 @@ public class RelationsContainer extends CustomComponent {
       @Override
       public Object generateCell(Table source, Object itemId, Object columnId) {
         final Link link = (Link) itemId;
-        Button btnShowTarget = new Button("show target", new ClickListener() {
+        
+        Button btnShowSeItem = createActionButton("show SE-Item", new ClickListener() {
           private static final long serialVersionUID = 3560526349123313597L;
+
           @Override
           public void buttonClick(ClickEvent event) {
-            new RelationTargetContentBrowser(link.getTitle(), link.getHref());
+            new ShowSeItemWindow(link.getHref());
           }
         });
-        btnShowTarget.addStyleName(ValoTheme.BUTTON_LINK);
-        btnShowTarget.addStyleName(ValoTheme.BUTTON_SMALL);
-        return btnShowTarget;
+        Button btnJumpToSeItem = createActionButton("jump to SE-Item", new ClickListener() {
+          private static final long serialVersionUID = 8061250855056493068L;
+
+          @Override
+          public void buttonClick(ClickEvent event) {
+            AppEventBus.post(new AppEvent.SelectSeItemInTree(link.getHref()));
+          }
+        });
+        
+        HorizontalLayout hlActionButtons = new HorizontalLayout(btnShowSeItem, btnJumpToSeItem);
+        hlActionButtons.setSpacing(true);
+        return hlActionButtons;
       }
     });
     table.setColumnHeaders("Type", "Actions");
     setCompositionRoot(table);
 
+  }
+  
+  private Button createActionButton(String caption, ClickListener clickListener) {
+    Button btn = new Button(caption, clickListener);
+    btn.addStyleName(ValoTheme.BUTTON_LINK);
+    btn.addStyleName(ValoTheme.BUTTON_SMALL);
+    return btn;
   }
 
   public void setRelations(List<Link> relations) {

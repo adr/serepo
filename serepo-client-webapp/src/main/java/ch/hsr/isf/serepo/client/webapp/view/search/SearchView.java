@@ -1,121 +1,99 @@
 package ch.hsr.isf.serepo.client.webapp.view.search;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
+import com.google.common.eventbus.Subscribe;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
+import ch.hsr.isf.serepo.client.webapp.AppNavigator;
+import ch.hsr.isf.serepo.client.webapp.event.AppEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEvent.TitleChangeEvent;
 import ch.hsr.isf.serepo.client.webapp.event.AppEventBus;
-import ch.hsr.isf.serepo.client.webapp.view.search.SearchComponent.CommitInfo;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.ContentContainer;
-import ch.hsr.isf.serepo.client.webapp.view.seitems.containers.MetadataContainer;
+import ch.hsr.isf.serepo.client.webapp.view.AppViewType;
+import ch.hsr.isf.serepo.client.webapp.view.search.SearchComponent.SearchResultListener;
+import ch.hsr.isf.serepo.client.webapp.view.seitems.SeItemComponent;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchContainer;
 import ch.hsr.isf.serepo.data.restinterface.search.SearchResult;
 
-public class SearchView extends VerticalLayout implements View, ISearchView {
+public class SearchView extends VerticalLayout implements View {
   private static final long serialVersionUID = -1994290342312994302L;
 
-  private SearchPresenter presenter;
   private SearchComponent searchComponent = new SearchComponent();
-
-  private ContentContainer contentContainer;
-  private MetadataContainer metadataContainer;
-
-  private SearchResultContainer searchResultContainer;
+  private SearchResultContainer searchResultContainer = new SearchResultContainer();
+  private SeItemComponent seItemComponent = new SeItemComponent();
 
   public SearchView() {
 
     setSizeFull();
+    setSpacing(true);
 
-    searchComponent.setListener(new SearchComponent.Listener() {
+    searchComponent.setWidth("100%");
+    searchResultContainer.setWidth("100%");
+    searchResultContainer.setHeight(15, Unit.EM);
+    
+    Panel panel = new Panel(seItemComponent);
+    panel.setSizeFull();
+    panel.setCaption("SE-Item");
+    panel.setIcon(FontAwesome.FILE_O);
+    
+    
+    addComponent(searchComponent);
+    addComponent(searchResultContainer);
+    addComponent(panel);
+    setExpandRatio(panel, 1);
 
+    searchComponent.setListener(new SearchResultListener() {
+      
       @Override
-      public void searchClicked(String repository, String commitId, String searchIn, String query) {
-        presenter.search(repository, commitId, searchIn, query);
-      }
-
-      @Override
-      public void repositoryChanged(String repository) {
-        presenter.loadCommitsForRepository(repository);
+      public void searchResult(SearchContainer searchContainer) {
+        searchResultContainer.setSearchResult(searchContainer.getSearchResult());
       }
     });
-
-    searchResultContainer = new SearchResultContainer();
     searchResultContainer.setListener(new SearchResultContainer.Listener() {
-
+      
       @Override
       public void searchResultClicked(SearchResult searchResult) {
-        presenter.searchResultClicked(searchResult);
+        seItemComponent.setSeItem(searchResult.getSeItemUri());
       }
     });
-    searchComponent.setSizeFull();
-    searchResultContainer.setCaption("Search result");
-
-    contentContainer = new ContentContainer();
-    contentContainer.setCaption("Content of selected SE-Item");
-    metadataContainer = new MetadataContainer();
-    metadataContainer.setCaption("Metadata of selected SE-Item");
-
-    VerticalLayout vlRight = new VerticalLayout(searchResultContainer, contentContainer, metadataContainer);
-    vlRight.setSizeFull();
-    vlRight.setSpacing(true);
-
-    HorizontalLayout hl = new HorizontalLayout(searchComponent, vlRight);
-    hl.setSizeFull();
-    hl.setSpacing(true);
-    addComponent(hl);
 
   }
-
-  @Override
-  public void setSearchResult(SearchContainer searchContainer) {
-    searchResultContainer.setSearchResult(searchContainer.getSearchResult());
-    contentContainer.clearContent();
-    setSeItemMetadata(new TreeMap<String, Object>());
-  }
-
-  @Override
-  public void setSeItemContent(String url) {
-    try {
-      contentContainer.setContent(new URL(url));
-    } catch (MalformedURLException e) {
-      Notification.show(e.getMessage(), Type.ERROR_MESSAGE);
-    }
-  }
-
-  @Override
-  public void setSeItemMetadata(Map<String, Object> metadata) {
-    metadataContainer.setMetatadata(metadata);
+  
+  @Subscribe
+  private void jumpToSeItem(AppEvent.SelectSeItemInTree selectSeItemInTree) {
+    SearchResult searchResult = searchResultContainer.getSelectedSearchResult();
+    AppNavigator.navigateTo(AppViewType.SEITEMS, searchResult.getRepository(), searchResult.getCommitId());
+    AppEventBus.post(selectSeItemInTree);
   }
 
   @Override
   public void attach() {
     super.attach();
-    presenter = new SearchPresenter(this);
+    AppEventBus.register(this);
   }
 
   @Override
-  public void setRepositories(List<String> repositories) {
-    searchComponent.setRepositories(repositories);
-  }
-
-  @Override
-  public void setCommits(List<CommitInfo> commits) {
-    searchComponent.setCommits(commits);
+  public void detach() {
+    AppEventBus.unregister(this);
+    AppEventBus.post(new AppEvent.GlobalSearchField.Visible(true));
+    super.detach();
   }
 
   @Override
   public void enter(ViewChangeEvent event) {
     AppEventBus.post(new TitleChangeEvent("Search"));
+    AppEventBus.post(new AppEvent.GlobalSearchField.Visible(false));
+    if (event.getParameters() != null) {
+      String query = event.getParameters();
+      if (!query.isEmpty()) {
+        if (query.endsWith("/")) {
+          query = query.substring(0, query.length() - 1);
+        }
+        searchComponent.executeQuery(query);
+      }
+    }
   }
 
 }

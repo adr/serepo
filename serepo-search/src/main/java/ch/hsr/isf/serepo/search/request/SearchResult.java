@@ -1,47 +1,44 @@
 package ch.hsr.isf.serepo.search.request;
 
-import ch.hsr.isf.serepo.search.SeItemDocumentType;
-
 public class SearchResult {
 
-	private String id;
-	private String repository;
-	private String commitId;
-	private SeItemDocumentType documentType;
-	
-	public SearchResult() {
-	}
+  private String repository;
+  private String commitid;
+  private String seItemId;
+  private String seItemName;
 
-	public String getId() {
-		return id;
-	}
+  public SearchResult() {}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getRepository() {
-		return repository;
-	}
-
-	public void setRepository(String repository) {
-		this.repository = repository;
-	}
-
-	public String getCommitId() {
-		return commitId;
-	}
-
-	public void setCommitId(String commitId) {
-		this.commitId = commitId;
-	}
-
-  public SeItemDocumentType getDocumentType() {
-    return documentType;
+  public String getRepository() {
+    return repository;
   }
 
-  public void setDocumentType(SeItemDocumentType documentType) {
-    this.documentType = documentType;
+  public void setRepository(String repository) {
+    this.repository = repository;
+  }
+
+  public String getCommitid() {
+    return commitid;
+  }
+
+  public void setCommitid(String commitid) {
+    this.commitid = commitid;
+  }
+  
+  public String getSeItemId() {
+    return seItemId;
+  }
+  
+  public void setSeItemId(String seItemId) {
+    this.seItemId = seItemId;
+  }
+
+  public String getSeItemName() {
+    return seItemName;
+  }
+
+  public void setSeItemName(String seItemName) {
+    this.seItemName = seItemName;
   }
 
 }
