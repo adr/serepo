@@ -1,0 +1,69 @@
+---
+definitions:
+- identifier: Has Smell
+  uri: http://art.com/relations/has_smell
+  description: Desc.
+- identifier: Is in SmellGroup
+  uri: http://art.com/relations/is_in_smellgroup
+  description: Desc.
+- identifier: Has TaskTemplate
+  uri: http://art.com/relations/has_tasktemplate
+  description: Desc.
+- identifier: Has Questions
+  uri: http://art.com/relations/has_questions
+  description: Desc.
+- identifier: Belongs to Smell
+  uri: http://art.com/relations/belongs_to_smell
+  description: Desc.
+- identifier: related_decision
+  uri: http://art.com/relations/related_decision
+  description: Desc.
+
+- identifier: Diagram
+  uri: http://patterns.com/relations/diagram
+  description: To reference a diagram of a design pattern.
+- identifier: Related Patterns
+  uri: http://patterns.com/relations/related_patterns
+  description: Use this relation type to define related patterns for the se-item.
+- identifier: Consider Next
+  uri: http://patterns.com/relations/consider_next
+  description: Use this relation type to follow another se-item.
+- identifier: In Context Of
+  uri: http://patterns.com/relations/in_context_of
+  description: Use this relation type to define this se-item to be in context of another se-item.
+- identifier: Addressed By
+  uri: http://admentor.com/relations/addressed_by
+  description: An option is a possible solution for a problem.
+- identifier: Raises
+  uri: http://admentor.com/relations/raises
+  description: Points to problems that arise due to the existence of another problem or the decision to use a certain option.
+- identifier: NoteLink
+  uri: http://admentor.com/relations/notelink
+  description: Relation to a note.
+- identifier: Suggests
+  uri: http://admentor.com/relations/suggests
+  description: Points to options that may be preferable when the source option has been chosen to solve a problem.
+- identifier: Conflicts With
+  uri: http://admentor.com/relations/conflicts_with
+  description: Points to options that should not be considered when the source option has been chosen.
+- identifier: Generalization
+  uri: http://admentor.com/relations/generalization
+  description: ADMentor relation.
+- identifier: Realisation
+  uri: http://admentor.com/relations/realisation
+  description: ADMentor relation.
+- identifier: Dependency
+  uri: http://admentor.com/relations/dependency
+  description: ADMentor relation.
+- identifier: Trace
+  uri: http://admentor.com/relations/trace
+  description: ADMentor relation.
+- identifier: Assesses Positively
+  uri: http://admentor.com/relations/assesses_positively
+  description: Marks that an option is assessed positive with respect to the source requirement (QOC).
+- identifier: Overrides
+  uri: http://admentor.com/relations/overrides
+  description: Denotes that a decision has been reconsidered.
+- identifier: Challenges
+  uri: http://admentor.com/relations/challenges
+  description: Denotes that a taken decision should be reconsidered.

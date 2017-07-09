@@ -53,11 +53,12 @@ public class SeRepoRestApplication extends Application {
         this.globalRelationDefinitionFile = new File(appSettings.globalRelationDefinitionFile);
         this.solrUrl = appSettings.solrUrl;
       } else {
-        logger.info("Applyding default settings...");
+        logger.info("Applying default settings...");
         Path tempDir = Files.createTempDirectory("serepo");
         logger.info("Dir: " + tempDir.toString());
         this.repositoriesDir = tempDir.resolve("repos").toFile();
         this.repositoriesTempWorkingDir = tempDir.resolve("tmp").toFile();
+        Files.copy(getClass().getResourceAsStream("/relations.yml"), tempDir.resolve("relations.yml"));
         this.globalRelationDefinitionFile = tempDir.resolve("relations.yml").toFile();
         this.solrUrl = "http://localhost:8983/solr/serepo";
       }
