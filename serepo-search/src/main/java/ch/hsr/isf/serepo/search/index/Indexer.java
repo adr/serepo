@@ -43,7 +43,7 @@ public class Indexer implements AutoCloseable {
       // metadata
       streamUpdate.setParam(toParam(Search.Fields.REPOSITORY), repository);
       streamUpdate.setParam(toParam(Search.Fields.COMMITID), commitId);
-      streamUpdate.setParam(toParam(Search.Fields.SEITEM_ID), seItemId);
+      streamUpdate.setParam(toParam(Search.Fields.SEITEM_ID), sanitizePath(seItemId));
       streamUpdate.setParam(toParam(Search.Fields.SEITEM_NAME), seItemName);
       addMetadata(streamUpdate, metadata);
       // content
@@ -139,6 +139,10 @@ public class Indexer implements AutoCloseable {
 
   private String toFieldName(String fieldName) {
     return fieldName.trim().replace(" ", "_").toLowerCase();
+  }
+  
+  private String sanitizePath(String path) {
+    return path.replace("\\", "/");
   }
   
 }
